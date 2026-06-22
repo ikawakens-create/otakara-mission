@@ -1,0 +1,108 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+  min-height: 68px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.card.stamped {
+  background: #fff5fb;
+  box-shadow: 0 2px 8px rgba(255, 110, 180, 0.15);
+}
+
+.missionEmoji {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 1rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.card.stamped .label {
+  color: var(--color-text-light);
+}
+
+.labelInput {
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  border: none;
+  border-bottom: 2px solid var(--color-primary);
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 2px 0;
+}
+
+.hint {
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+  margin-top: 2px;
+}
+
+.stampArea {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px dashed #e0e0e0;
+  background: #fafafa;
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+
+.card.stamped .stampArea {
+  border: none;
+  background: transparent;
+  animation: stampBounce 0.3s ease;
+}
+
+@keyframes stampBounce {
+  0% { transform: scale(1.4); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.longPressHint {
+  font-size: 0.65rem;
+  color: #ccc;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.longPressProgress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-primary);
+  transition: width linear;
+  border-radius: 0 2px 0 0;
+}
