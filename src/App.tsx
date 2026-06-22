@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { SaveData } from "./types";
 import { loadSaveData, saveSaveData } from "./lib/storage";
-import { formatDateJa, getTodayKey } from "./lib/date";
+import ProfileSelect from "./screens/ProfileSelect";
+import Home from "./screens/Home";
 import "./styles/global.css";
+
+type Screen = "profileSelect" | "home";
 
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
+  const [screen, setScreen] = useState<Screen>("home");
 
   useEffect(() => {
     setSaveData(loadSaveData());
@@ -15,24 +19,36 @@ export default function App() {
     if (saveData) saveSaveData(saveData);
   }, [saveData]);
 
+  const handleUpdate = useCallback((updated: SaveData) => {
+    setSaveData(updated);
+  }, []);
+
+  const handleProfileSelect = useCallback(
+    (id: string) => {
+      if (!saveData) return;
+      setSaveData({ ...saveData, activeProfileId: id });
+      setScreen("home");
+    },
+    [saveData]
+  );
+
   if (!saveData) return null;
 
-  const today = getTodayKey();
+  if (screen === "profileSelect") {
+    return (
+      <ProfileSelect
+        profiles={saveData.profiles}
+        activeId={saveData.activeProfileId}
+        onSelect={handleProfileSelect}
+      />
+    );
+  }
 
   return (
-    <div style={{ padding: "24px", maxWidth: "480px", margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.5rem", color: "var(--color-primary)", marginBottom: "8px" }}>
-        🎁 おたからミッション
-      </h1>
-      <p style={{ color: "var(--color-text-light)", marginBottom: "24px" }}>
-        {formatDateJa(today)}
-      </p>
-      <p style={{ fontSize: "1rem", color: "var(--color-text)" }}>
-        ようこそ！アプリのきばんができました。
-      </p>
-      <p style={{ fontSize: "0.875rem", color: "var(--color-text-light)", marginTop: "8px" }}>
-        スキーマバージョン: {saveData.schemaVersion}
-      </p>
-    </div>
+    <Home
+      saveData={saveData}
+      onUpdate={handleUpdate}
+      onSwitchProfile={() => setScreen("profileSelect")}
+    />
   );
 }

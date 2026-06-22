@@ -1,0 +1,174 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+.header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 16px 20px 20px;
+  position: relative;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.appTitle {
+  font-size: 1rem;
+  font-weight: bold;
+  opacity: 0.9;
+}
+
+.switchBtn {
+  font-size: 0.8rem;
+  color: #fff;
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 14px;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarCircle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileName {
+  font-size: 1.25rem;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.dateText {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.statsRow {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.body {
+  flex: 1;
+  padding: 20px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  margin-bottom: 4px;
+}
+
+.missionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 全クリアバナー */
+.completeBanner {
+  background: linear-gradient(135deg, #ffcc00, #ff6eb4);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+  animation: popIn 0.4s ease;
+  box-shadow: 0 6px 20px rgba(255, 110, 180, 0.4);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  70% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.completeBannerTitle {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.completeBannerSub {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.progressText {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  min-width: 48px;
+  text-align: right;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
