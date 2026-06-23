@@ -1,0 +1,316 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #1a0a2e 0%, #0d1b40 60%, #0a2a1e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Intro ──────────────────────────────── */
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  animation: fadeIn 0.4s ease;
+}
+
+.machineEmoji {
+  font-size: 100px;
+  line-height: 1;
+  animation: floatBob 2s ease-in-out infinite;
+}
+
+.introReason {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+}
+
+.introSub {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.pullBtn {
+  background: linear-gradient(135deg, #ffcc00, #ff6eb4);
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: bold;
+  padding: 18px 52px;
+  border-radius: 40px;
+  border: none;
+  cursor: pointer;
+  min-height: 64px;
+  box-shadow: 0 6px 28px rgba(255, 110, 180, 0.55);
+  animation: pulsePull 1.6s ease-in-out infinite;
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+  padding: 10px 28px;
+  border-radius: 20px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* ── Anim wrapper ───────────────────────── */
+
+.sceneWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.skipBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  min-height: 40px;
+  z-index: 10;
+}
+
+.sceneCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  animation: fadeIn 0.25s ease;
+}
+
+.sceneHint {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+}
+
+/* ── Silhouette ─────────────────────────── */
+
+.silhouette {
+  width: 110px;
+  height: 130px;
+  background: #1a1a2e;
+  border: 3px solid #2a2a4e;
+  border-radius: 55% 55% 38% 38%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: silhouettePulse 0.9s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(80, 80, 200, 0.3);
+}
+
+.silhouetteQ {
+  font-size: 44px;
+  opacity: 0.35;
+}
+
+/* ── Machine ────────────────────────────── */
+
+.machineAppear {
+  font-size: 104px;
+  line-height: 1;
+  animation: machineSlideIn 0.55s cubic-bezier(0.17, 0.89, 0.32, 1.3);
+}
+
+/* ── Handle ─────────────────────────────── */
+
+.handleRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.machineEmoji2 {
+  font-size: 104px;
+  line-height: 1;
+}
+
+.handleSpin {
+  font-size: 52px;
+  animation: handleRotate 0.35s linear infinite;
+  display: inline-block;
+}
+
+/* ── Capsule fall ───────────────────────── */
+
+.capsuleFall {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.35);
+  animation: capsuleDropIn 0.65s cubic-bezier(0.2, 1.6, 0.6, 1);
+}
+
+/* ── Capsule open ───────────────────────── */
+
+.capsuleOpen {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: capsuleOpenAnim 0.5s ease;
+}
+
+.capsuleOpenInner {
+  font-size: 48px;
+  animation: fadeIn 0.3s ease 0.15s both;
+}
+
+/* ── Prize reveal ───────────────────────── */
+
+.prizeReveal {
+  font-size: 100px;
+  line-height: 1;
+  animation: prizePopIn 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+}
+
+.revealRarity {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.4s ease;
+}
+
+/* ── Result ─────────────────────────────── */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 24px 40px;
+  width: 100%;
+  max-width: 380px;
+  animation: fadeIn 0.45s ease;
+}
+
+.rarityBadge {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: bold;
+  padding: 8px 28px;
+  border-radius: 24px;
+  letter-spacing: 0.04em;
+}
+
+.resultPrize {
+  font-size: 100px;
+  line-height: 1;
+  animation: prizePopIn 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+  margin: 4px 0;
+}
+
+.resultName {
+  font-size: 1.45rem;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+}
+
+.duplicateMsg {
+  background: rgba(255, 215, 0, 0.18);
+  border: 1.5px solid rgba(255, 215, 0, 0.55);
+  color: #ffd700;
+  font-size: 1.05rem;
+  padding: 10px 28px;
+  border-radius: 14px;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+}
+
+.pointsMsg {
+  color: #ffd700;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.closeBtn {
+  background: #fff;
+  color: #333;
+  font-size: 1.15rem;
+  font-weight: bold;
+  padding: 16px 52px;
+  border-radius: 36px;
+  border: none;
+  cursor: pointer;
+  min-height: 60px;
+  margin-top: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Keyframes ──────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-14px); }
+}
+
+@keyframes pulsePull {
+  0%, 100% { transform: scale(1);    box-shadow: 0 6px 28px rgba(255, 110, 180, 0.55); }
+  50%       { transform: scale(1.05); box-shadow: 0 8px 36px rgba(255, 110, 180, 0.75); }
+}
+
+@keyframes silhouettePulse {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1;    box-shadow: 0 0 44px rgba(90, 90, 210, 0.55); }
+}
+
+@keyframes machineSlideIn {
+  from { transform: translateY(-70px) scale(0.65); opacity: 0; }
+  to   { transform: translateY(0)     scale(1);    opacity: 1; }
+}
+
+@keyframes handleRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes capsuleDropIn {
+  from { transform: translateY(-130px) scale(0.4); opacity: 0; }
+  60%  { transform: translateY(12px)  scale(1.12); }
+  to   { transform: translateY(0)     scale(1);    opacity: 1; }
+}
+
+@keyframes capsuleOpenAnim {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.22) rotate(12deg); }
+  65%  { transform: scale(0.88) rotate(-6deg); }
+  100% { transform: scale(1)    rotate(0deg); }
+}
+
+@keyframes prizePopIn {
+  0%   { transform: scale(0)    rotate(-18deg); opacity: 0; }
+  55%  { transform: scale(1.22) rotate(4deg); }
+  100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}

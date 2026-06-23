@@ -3,11 +3,13 @@ import type { Profile, SaveData, StampDef } from "../types";
 import { STAMPS } from "../data/stamps";
 import { isAllComplete } from "../lib/complete";
 import { formatDateJa, getTodayKey, getWeekStartDate, isNewWeek } from "../lib/date";
+import { canPullOnDate, findPendingRecoveryDate, canPullTicket } from "../lib/gacha";
 import MissionCard from "../components/MissionCard";
 import StampPalette from "../components/StampPalette";
 import TabBar, { type HomeTab } from "../components/TabBar";
 import WeekView from "./WeekView";
 import MonthView from "./MonthView";
+import GachaScreen, { type PullReason } from "./Gacha";
 import styles from "./Home.module.css";
 
 const AVATAR_EMOJI: Record<string, string> = {
@@ -25,6 +27,10 @@ interface Props {
 export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParentSettings }: Props) {
   const [paletteForMissionId, setPaletteForMissionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<HomeTab>("today");
+  const [gachaState, setGachaState] = useState<{
+    pullReason: PullReason;
+    dateKey: string;
+  } | null>(null);
 
   const today = getTodayKey();
 
@@ -71,6 +77,33 @@ export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParent
   const allComplete = isAllComplete(currentProfile.missions, todayRecord);
   const stampedCount = Object.keys(todayRecord.stamps).length;
   const totalCount = currentProfile.missions.length;
+
+  const dailyGachaAvailable = canPullOnDate(
+    currentProfile,
+    today,
+    resolvedData.settings.recoveryGrantsGacha
+  );
+  const recoveryGachaDate = findPendingRecoveryDate(
+    currentProfile,
+    resolvedData.settings.recoveryGrantsGacha,
+    today
+  );
+  const ticketGachaAvailable = canPullTicket(currentProfile);
+
+  function openGacha(pullReason: PullReason, dateKey: string) {
+    setGachaState({ pullReason, dateKey });
+  }
+
+  function handleGachaSave(updated: Profile) {
+    onUpdate({
+      ...resolvedData,
+      profiles: resolvedData.profiles.map((p) => (p.id === updated.id ? updated : p)),
+    });
+  }
+
+  function handleGachaClose() {
+    setGachaState(null);
+  }
 
   function updateProfile(updated: Profile): void {
     onUpdate({
@@ -197,6 +230,48 @@ export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParent
             </div>
           )}
 
+          {/* ガチャセクション */}
+          {dailyGachaAvailable && (
+            <div className={styles.gachaCard}>
+              <div className={styles.gachaCardTitle}>🎊 ガチャを引こう！</div>
+              <button
+                className={styles.gachaBtn}
+                onClick={() => openGacha(
+                  todayRecord.recovered ? "recovery" : "complete",
+                  today
+                )}
+              >
+                ガチャを引く！
+              </button>
+            </div>
+          )}
+
+          {recoveryGachaDate && (
+            <div className={styles.gachaCard}>
+              <div className={styles.gachaCardTitle}>⭐ リカバリーごほうびガチャ！</div>
+              <button
+                className={`${styles.gachaBtn} ${styles.gachaBtnRecovery}`}
+                onClick={() => openGacha("recovery", recoveryGachaDate)}
+              >
+                ガチャを引く！
+              </button>
+            </div>
+          )}
+
+          {ticketGachaAvailable && (
+            <div className={styles.gachaCard}>
+              <div className={styles.gachaCardTitle}>
+                🎫 スペシャルけん（{currentProfile.specialGachaTickets}まい）
+              </div>
+              <button
+                className={`${styles.gachaBtn} ${styles.gachaBtnTicket}`}
+                onClick={() => openGacha("ticket", today)}
+              >
+                けんで引く！
+              </button>
+            </div>
+          )}
+
           <div className={styles.missionList}>
             {currentProfile.missions.map((mission) => {
               const stampId = todayRecord.stamps[mission.id];
@@ -241,6 +316,16 @@ export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParent
           stamps={ownedStamps}
           onSelect={handleStampSelect}
           onClose={() => setPaletteForMissionId(null)}
+        />
+      )}
+
+      {gachaState && (
+        <GachaScreen
+          profile={currentProfile}
+          pullReason={gachaState.pullReason}
+          dateKey={gachaState.dateKey}
+          onSave={handleGachaSave}
+          onClose={handleGachaClose}
         />
       )}
     </div>
