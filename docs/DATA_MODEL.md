@@ -89,6 +89,51 @@ export const KAKERA_PRICE: Record<Rarity, number> = { ... };
 export const PRIZE_KIND_WEIGHTS = { default: { points: 20, stamp: 40, item: 40 } };
 ```
 
+### 2.5 レア度ビジュアル `src/data/gachaVisuals.ts`（ステップ2-A で追加）
+```ts
+export interface RarityVisual {
+  label: string;        // 表示用レア度名（日本語）
+  capsuleColor: string; // カプセルの色（CSS色）
+  glowColor: string;    // グロー効果の色（CSS色）
+  level: number;        // 0〜6（演出強度・音の段数に使用）
+}
+
+export const RARITY_VISUALS: Record<Rarity, RarityVisual> = { ... };
+```
+
+### 2.6 ガチャ演出シナリオ `src/data/gachaScenarios.ts`（ステップ2-B で追加）
+```ts
+export interface GachaScenarioDef {
+  id: string;
+  rarities: Rarity[];    // このシナリオが選ばれうるレア度
+  weight: number;        // 重み付きランダム選択用
+  phases: GachaPhase[];  // 演出フェーズの配列
+}
+```
+
+### ガチャ抽選ロジック `src/lib/gacha.ts`（ステップ2-A で追加）
+```ts
+export type PullType = "daily" | "ticket";
+// "daily": dailyRecords[dateKey].gachaPulled = true にする（デイリー/リカバリー共用）
+// "ticket": specialGachaTickets -= 1 にする
+
+export interface GachaResult {
+  rarity: Rarity;
+  prizeKind: "points" | "stamp" | "item";
+  prizeId: string | null;
+  prizePoints: number;
+  isDuplicate: boolean;
+  kakeraAwarded: number;
+  prizeAsset: string;
+  prizeName: string;
+}
+```
+
+特記事項：
+- スペシャルガチャ券の抽選テーブルは当面デイリーと同一。
+  将来「券は高レア率アップ」等にする場合は `GACHA_RARITY_WEIGHTS` と別テーブルを追加すればよい構造にしておく。
+- リカバリーガチャは過去日の `dailyRecords[recoveredDate].gachaPulled` を true にする（今日の record は変更しない）。
+
 ---
 
 ## 3. 保存データ（永続化スキーマ）
@@ -180,7 +225,7 @@ export interface WeekState {
 | `points.ts` | スタンプ→ポイント計算（2倍含む）、ボーナス加算 |
 | `complete.ts` | 1日コンプリート判定、二重付与防止 |
 | `weekly.ts` | 週コンプリート日数の更新、週間ボーナス判定（ステップ4） |
-| `gacha.ts` | レア度抽選・景品抽選・ダブり→かけら変換・フォールバック（ステップ2） |
+| `gacha.ts` | レア度抽選・景品抽選・ダブり→かけら変換・フォールバック・ガチャ権利判定（ステップ2-A） |
 | `exchange.ts` | かけら交換所の購入処理（ステップ3） |
 | `stats.ts` | 達成率・曜日ステータス・週/月サマリーを dailyRecords から計算 |
 | `recovery.ts` | リカバリー候補判定・適用・残り回数 |
@@ -194,6 +239,7 @@ export interface WeekState {
 |---|---|
 | 1 | 初期スキーマ（ステップ0/1） |
 | 2 | ステップ1.5追加: DailyRecord.recovered, WeekState.recoveryUsedThisWeek, Profile.monthlyRewardGiven/specialGachaTickets, AppSettings.recovery*/monthly* |
+| （2のまま） | ステップ2-A: ガチャロジック・演出を追加。スキーマ変更なし（`gachaPulled`・`specialGachaTickets` は v2 で定義済み） |
 
 ---
 
