@@ -1,7 +1,7 @@
 import type { Rarity } from "../types";
 
 export const GACHA_RARITY_WEIGHTS: Record<Rarity, number> = {
-  normal: 40,
+  normal: 41,
   rare: 25,
   super_rare: 15,
   ultra_rare: 10,
