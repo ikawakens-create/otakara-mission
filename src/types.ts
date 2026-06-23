@@ -23,6 +23,12 @@ export interface MissionDef {
   editableLabel?: boolean;
 }
 
+export interface RecoveryMissionDef {
+  id: string;
+  emoji: string;
+  label: string;
+}
+
 export interface StampDef {
   id: string;
   name: string;
@@ -54,12 +60,15 @@ export interface DailyRecord {
   myMissionLabel?: string;
   completed: boolean;
   gachaPulled: boolean;
+  recovered?: boolean;
+  recoveryMissionId?: string;
 }
 
 export interface WeekState {
   weekStartDate: string;
   completedDays: number;
   weeklyBonusGiven: boolean;
+  recoveryUsedThisWeek: number;
 }
 
 export interface Profile {
@@ -73,6 +82,8 @@ export interface Profile {
   ownedItemIds: string[];
   dailyRecords: Record<string, DailyRecord>;
   weekState: WeekState;
+  monthlyRewardGiven: Record<string, boolean>;
+  specialGachaTickets: number;
 }
 
 export interface AppSettings {
@@ -80,6 +91,11 @@ export interface AppSettings {
   yenPerPoint: number;
   weeklyYenCap: number | null;
   appVersion: string;
+  recoveryMissions: RecoveryMissionDef[];
+  recoveryWeeklyLimit: number;
+  recoveryGrantsGacha: boolean;
+  monthlyGoalDays: number;
+  monthlyRewardPoints: number;
 }
 
 export interface SaveData {

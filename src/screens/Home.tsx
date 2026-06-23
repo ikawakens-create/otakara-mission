@@ -2,9 +2,12 @@ import { useState } from "react";
 import type { Profile, SaveData, StampDef } from "../types";
 import { STAMPS } from "../data/stamps";
 import { isAllComplete } from "../lib/complete";
-import { formatDateJa, getTodayKey } from "../lib/date";
+import { formatDateJa, getTodayKey, getWeekStartDate, isNewWeek } from "../lib/date";
 import MissionCard from "../components/MissionCard";
 import StampPalette from "../components/StampPalette";
+import TabBar, { type HomeTab } from "../components/TabBar";
+import WeekView from "./WeekView";
+import MonthView from "./MonthView";
 import styles from "./Home.module.css";
 
 const AVATAR_EMOJI: Record<string, string> = {
@@ -16,34 +19,63 @@ interface Props {
   saveData: SaveData;
   onUpdate: (updated: SaveData) => void;
   onSwitchProfile: () => void;
+  onOpenParentSettings: () => void;
 }
 
-export default function Home({ saveData, onUpdate, onSwitchProfile }: Props) {
+export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParentSettings }: Props) {
   const [paletteForMissionId, setPaletteForMissionId] = useState<string | null>(null);
-
-  const profile: Profile =
-    saveData.profiles.find((p) => p.id === saveData.activeProfileId) ??
-    saveData.profiles[0];
+  const [activeTab, setActiveTab] = useState<HomeTab>("today");
 
   const today = getTodayKey();
-  const todayRecord = profile.dailyRecords[today] ?? {
+
+  // 週またぎリセット
+  let resolvedData = saveData;
+  const profile: Profile =
+    resolvedData.profiles.find((p) => p.id === resolvedData.activeProfileId) ??
+    resolvedData.profiles[0];
+
+  if (isNewWeek(profile.weekState.weekStartDate, today)) {
+    const newWeekStart = getWeekStartDate(today);
+    const updatedProfile: Profile = {
+      ...profile,
+      weekState: {
+        weekStartDate: newWeekStart,
+        completedDays: 0,
+        weeklyBonusGiven: false,
+        recoveryUsedThisWeek: 0,
+      },
+    };
+    resolvedData = {
+      ...saveData,
+      profiles: saveData.profiles.map((p) =>
+        p.id === updatedProfile.id ? updatedProfile : p
+      ),
+    };
+    if (resolvedData !== saveData) onUpdate(resolvedData);
+  }
+
+  const currentProfile: Profile =
+    resolvedData.profiles.find((p) => p.id === resolvedData.activeProfileId) ??
+    resolvedData.profiles[0];
+
+  const todayRecord = currentProfile.dailyRecords[today] ?? {
     stamps: {},
     completed: false,
     gachaPulled: false,
   };
 
   const ownedStamps: StampDef[] = STAMPS.filter((s) =>
-    profile.ownedStampIds.includes(s.id)
+    currentProfile.ownedStampIds.includes(s.id)
   );
 
-  const allComplete = isAllComplete(profile.missions, todayRecord);
+  const allComplete = isAllComplete(currentProfile.missions, todayRecord);
   const stampedCount = Object.keys(todayRecord.stamps).length;
-  const totalCount = profile.missions.length;
+  const totalCount = currentProfile.missions.length;
 
   function updateProfile(updated: Profile): void {
     onUpdate({
-      ...saveData,
-      profiles: saveData.profiles.map((p) => (p.id === updated.id ? updated : p)),
+      ...resolvedData,
+      profiles: resolvedData.profiles.map((p) => (p.id === updated.id ? updated : p)),
     });
   }
 
@@ -57,44 +89,39 @@ export default function Home({ saveData, onUpdate, onSwitchProfile }: Props) {
       stamps: { ...todayRecord.stamps, [missionId]: stampDef.id },
     };
 
-    const updatedMissions = profile.missions;
-    const nowComplete = isAllComplete(updatedMissions, newRecord);
+    const nowComplete = isAllComplete(currentProfile.missions, newRecord);
     newRecord.completed = nowComplete;
 
-    let newPoints = { ...profile.points };
+    let newPoints = { ...currentProfile.points };
     if (nowComplete && !todayRecord.completed) {
       newPoints = {
-        total: profile.points.total + 1,
-        thisWeek: profile.points.thisWeek + 1,
+        total: currentProfile.points.total + 1,
+        thisWeek: currentProfile.points.thisWeek + 1,
       };
     }
 
     updateProfile({
-      ...profile,
+      ...currentProfile,
       points: newPoints,
-      dailyRecords: { ...profile.dailyRecords, [today]: newRecord },
+      dailyRecords: { ...currentProfile.dailyRecords, [today]: newRecord },
     });
   }
 
   function handleRemoveStamp(missionId: string) {
     const newStamps = { ...todayRecord.stamps };
     delete newStamps[missionId];
-    const newRecord = {
-      ...todayRecord,
-      stamps: newStamps,
-      completed: false,
-    };
+    const newRecord = { ...todayRecord, stamps: newStamps, completed: false };
     updateProfile({
-      ...profile,
-      dailyRecords: { ...profile.dailyRecords, [today]: newRecord },
+      ...currentProfile,
+      dailyRecords: { ...currentProfile.dailyRecords, [today]: newRecord },
     });
   }
 
   function handleUpdateMyMissionLabel(_missionId: string, label: string) {
     const newRecord = { ...todayRecord, myMissionLabel: label };
     updateProfile({
-      ...profile,
-      dailyRecords: { ...profile.dailyRecords, [today]: newRecord },
+      ...currentProfile,
+      dailyRecords: { ...currentProfile.dailyRecords, [today]: newRecord },
     });
   }
 
@@ -103,80 +130,111 @@ export default function Home({ saveData, onUpdate, onSwitchProfile }: Props) {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <span className={styles.appTitle}>🎁 おたからミッション</span>
-          <button className={styles.switchBtn} onClick={onSwitchProfile}>
-            きりかえ
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className={styles.switchBtn} onClick={onOpenParentSettings} title="おうちのひとモード">
+              🔒
+            </button>
+            <button className={styles.switchBtn} onClick={onSwitchProfile}>
+              きりかえ
+            </button>
+          </div>
         </div>
 
         <div className={styles.profileRow}>
           <div className={styles.avatarCircle}>
-            {AVATAR_EMOJI[profile.id] ?? "👧"}
+            {AVATAR_EMOJI[currentProfile.id] ?? "👧"}
           </div>
           <div className={styles.profileInfo}>
-            <div className={styles.profileName}>{profile.name}</div>
+            <div className={styles.profileName}>{currentProfile.name}</div>
             <div className={styles.dateText}>{formatDateJa(today)}</div>
           </div>
         </div>
 
         <div className={styles.statsRow}>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{profile.points.total}</span>
+            <span className={styles.statValue}>{currentProfile.points.total}</span>
             <span className={styles.statLabel}>ポイント</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{profile.points.thisWeek}</span>
+            <span className={styles.statValue}>{currentProfile.points.thisWeek}</span>
             <span className={styles.statLabel}>今週</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{profile.kakera}</span>
+            <span className={styles.statValue}>{currentProfile.kakera}</span>
             <span className={styles.statLabel}>かけら</span>
           </div>
+          {currentProfile.specialGachaTickets > 0 && (
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{currentProfile.specialGachaTickets}</span>
+              <span className={styles.statLabel}>がちゃけん</span>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className={styles.body}>
-        <div className={styles.progressRow}>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${totalCount > 0 ? (stampedCount / totalCount) * 100 : 0}%` }}
-            />
-          </div>
-          <span className={styles.progressText}>
-            {stampedCount}/{totalCount}
-          </span>
-        </div>
+      <TabBar active={activeTab} onChange={setActiveTab} />
 
-        {allComplete && (
-          <div className={styles.completeBanner}>
-            <div className={styles.completeBannerTitle}>🌟 ぜんぶできた！</div>
-            <div className={styles.completeBannerSub}>
-              すごい！きょうのミッション コンプリート！
-            </div>
-          </div>
-        )}
-
-        <div className={styles.missionList}>
-          {profile.missions.map((mission) => {
-            const stampId = todayRecord.stamps[mission.id];
-            const stampDef = STAMPS.find((s) => s.id === stampId);
-            return (
-              <MissionCard
-                key={mission.id}
-                mission={mission}
-                stampedAsset={stampDef?.asset}
-                myMissionLabel={todayRecord.myMissionLabel}
-                ownedStamps={ownedStamps}
-                onTap={() => setPaletteForMissionId(mission.id)}
-                onRemoveStamp={() => handleRemoveStamp(mission.id)}
-                onUpdateMyMissionLabel={(label) =>
-                  handleUpdateMyMissionLabel(mission.id, label)
-                }
+      {activeTab === "today" && (
+        <div className={styles.body}>
+          <div className={styles.progressRow}>
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${totalCount > 0 ? (stampedCount / totalCount) * 100 : 0}%` }}
               />
-            );
-          })}
+            </div>
+            <span className={styles.progressText}>
+              {stampedCount}/{totalCount}
+            </span>
+          </div>
+
+          {allComplete && (
+            <div className={styles.completeBanner}>
+              <div className={styles.completeBannerTitle}>🌟 ぜんぶできた！</div>
+              <div className={styles.completeBannerSub}>
+                すごい！きょうのミッション コンプリート！
+              </div>
+            </div>
+          )}
+
+          <div className={styles.missionList}>
+            {currentProfile.missions.map((mission) => {
+              const stampId = todayRecord.stamps[mission.id];
+              const stampDef = STAMPS.find((s) => s.id === stampId);
+              return (
+                <MissionCard
+                  key={mission.id}
+                  mission={mission}
+                  stampedAsset={stampDef?.asset}
+                  myMissionLabel={todayRecord.myMissionLabel}
+                  ownedStamps={ownedStamps}
+                  onTap={() => setPaletteForMissionId(mission.id)}
+                  onRemoveStamp={() => handleRemoveStamp(mission.id)}
+                  onUpdateMyMissionLabel={(label) =>
+                    handleUpdateMyMissionLabel(mission.id, label)
+                  }
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === "week" && (
+        <WeekView
+          profile={currentProfile}
+          settings={resolvedData.settings}
+          onUpdateProfile={updateProfile}
+        />
+      )}
+
+      {activeTab === "month" && (
+        <MonthView
+          profile={currentProfile}
+          settings={resolvedData.settings}
+          onUpdateProfile={updateProfile}
+        />
+      )}
 
       {paletteForMissionId && (
         <StampPalette

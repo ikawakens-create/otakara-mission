@@ -1,0 +1,22 @@
+.tabBar {
+  display: flex;
+  background: var(--color-surface);
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 8px;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  text-align: center;
+  min-height: 48px;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: bold;
+}

@@ -1,0 +1,222 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+.header {
+  background: #555;
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backBtn {
+  font-size: 1.2rem;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.2);
+}
+
+.headerTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-text-light);
+  padding: 12px 16px 8px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  min-height: 56px;
+}
+
+.settingRow:last-child {
+  border-bottom: none;
+}
+
+.settingLabel {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.settingHint {
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+  margin-top: 2px;
+}
+
+.numInput {
+  width: 64px;
+  text-align: center;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 4px;
+  font-family: inherit;
+}
+
+.toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: #ccc;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: none;
+}
+
+.toggle.on {
+  background: var(--color-primary);
+}
+
+.toggleThumb {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.toggle.on .toggleThumb {
+  left: 23px;
+}
+
+/* リカバリーミッション */
+.missionList {
+  padding: 8px 0;
+}
+
+.missionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.missionItem:last-child {
+  border-bottom: none;
+}
+
+.missionEmoji {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.missionLabel {
+  flex: 1;
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.deleteBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fee;
+  color: #e53935;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addArea {
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.addForm {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.addEmojiInput {
+  width: 44px;
+  text-align: center;
+  font-size: 1.2rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px;
+  font-family: inherit;
+}
+
+.addLabelInput {
+  flex: 1;
+  font-size: 0.88rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: inherit;
+}
+
+.addBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.pinRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.pinStatus {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+}
+
+.changePinBtn {
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  min-height: 40px;
+}
