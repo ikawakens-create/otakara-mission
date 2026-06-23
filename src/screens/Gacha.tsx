@@ -8,7 +8,7 @@ import {
   type PullType,
 } from "../lib/gacha";
 import { soundPull, soundMachine, soundCapsule, soundReveal } from "../lib/sounds";
-import { RARITY_VISUALS } from "../data/gachaVisuals";
+import { RARITY_VISUALS, CAPSULE_CSS_COLORS } from "../data/gachaVisuals";
 import styles from "./Gacha.module.css";
 
 type AnimPhase = "silhouette" | "machine" | "handle" | "capsule" | "open" | "reveal";
@@ -160,7 +160,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           <div className={styles.sceneCenter}>
             <div
               className={styles.capsuleFall}
-              style={{ backgroundColor: visual.capsuleColor, ...glowStyle }}
+              style={{ backgroundColor: CAPSULE_CSS_COLORS[visual.capsule], ...glowStyle }}
             />
             <p className={styles.sceneHint}>でてきた！</p>
           </div>
@@ -170,7 +170,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           <div className={styles.sceneCenter}>
             <div
               className={styles.capsuleOpen}
-              style={{ borderColor: visual.capsuleColor, ...glowStyle }}
+              style={{ borderColor: CAPSULE_CSS_COLORS[visual.capsule], ...glowStyle }}
             >
               <span className={styles.capsuleOpenInner} aria-hidden>✨</span>
             </div>
@@ -183,7 +183,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
             <div className={styles.prizeReveal} style={filterStyle} aria-hidden>
               {result.prizeAsset}
             </div>
-            <p className={styles.revealRarity} style={{ color: visual.capsuleColor }}>
+            <p className={styles.revealRarity} style={{ color: CAPSULE_CSS_COLORS[visual.capsule] }}>
               {visual.label}
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
       <div className={styles.result}>
         <div
           className={styles.rarityBadge}
-          style={{ backgroundColor: visual.capsuleColor, ...glowStyle }}
+          style={{ backgroundColor: CAPSULE_CSS_COLORS[visual.capsule], ...glowStyle }}
         >
           {visual.label}
         </div>
