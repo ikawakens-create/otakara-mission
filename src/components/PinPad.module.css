@@ -1,0 +1,81 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.sheet {
+  background: var(--color-surface);
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+  width: 300px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.1rem;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.sub {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-bottom: 20px;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary);
+  background: transparent;
+  transition: background 0.1s;
+}
+
+.dot.filled {
+  background: var(--color-primary);
+}
+
+.numGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.numBtn {
+  height: 56px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--color-text);
+  transition: background 0.1s;
+}
+
+.numBtn:active {
+  background: #e8e8e8;
+}
+
+.delBtn {
+  background: transparent;
+  font-size: 1.2rem;
+}
+
+.error {
+  font-size: 0.8rem;
+  color: #e53935;
+  margin-top: 8px;
+  min-height: 1.2em;
+}

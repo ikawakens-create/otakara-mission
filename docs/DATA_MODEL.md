@@ -18,6 +18,12 @@ export type Rarity =
 
 export type ItemCategory =
   | "hair" | "clothes" | "hat" | "accessory" | "background" | "pet";
+
+export interface RecoveryMissionDef {
+  id: string;
+  emoji: string;
+  label: string;
+}
 ```
 
 ---
@@ -45,8 +51,6 @@ export const DEFAULT_MISSIONS: MissionDef[] = [
   { id: "my_mission",  emoji: "⭐", label: "じぶんで きめた ミッション", editableLabel: true },
 ];
 ```
-> 実際のミッションはおうちの人モードで編集され、プロフィールごとに保存される。
-> DEFAULT_MISSIONS は初回セットアップ時の初期値。
 
 ### 2.2 スタンプ `src/data/stamps.ts`
 ```ts
@@ -54,16 +58,9 @@ export interface StampDef {
   id: string;        // "stamp_hanamaru"
   name: string;      // "はなまる"
   rarity: Rarity;    // 図鑑やかけら価値の基準
-  asset: string;     // 絵文字 or 画像パス。例 "💮" / "/icons/stamps/hanamaru.png"
+  asset: string;     // 絵文字 or 画像パス
   starter?: boolean; // 初期から所持しているか
 }
-
-export const STAMPS: StampDef[] = [
-  { id: "stamp_hanamaru", name: "はなまる", rarity: "normal", asset: "💮", starter: true },
-  { id: "stamp_star",     name: "ほし",     rarity: "normal", asset: "⭐", starter: true },
-  { id: "stamp_heart",    name: "はーと",   rarity: "normal", asset: "❤️", starter: true },
-  // …初期は normal を中心に15〜25個。レア以上はガチャ景品として追加していく
-];
 ```
 
 ### 2.3 着せ替えアイテム `src/data/items.ts`
@@ -73,94 +70,70 @@ export interface ItemDef {
   name: string;          // "ピンクのツインテール"
   category: ItemCategory;
   rarity: Rarity;
-  asset: string;         // 画像パス or レイヤー情報
+  asset: string;
   starter?: boolean;
 }
-
-export const ITEMS: ItemDef[] = [
-  { id: "hair_default",  name: "きほんの かみがた", category: "hair",    rarity: "normal", asset: "...", starter: true },
-  { id: "clothes_tshirt",name: "白いTシャツM",      category: "clothes", rarity: "normal", asset: "...", starter: true },
-  // …各カテゴリ初期15〜25個。レア以上はガチャで増やす
-];
 ```
-> アバターは「レイヤー合成」で表現する想定（背景→体→服→髪→帽子→アクセ→ペット）。
-> 画像が用意できるまでは絵文字/簡易SVGで代替し、後から差し替え可能にする。
 
 ### 2.4 ガチャ `src/data/gacha.ts`
 ```ts
-import type { Rarity } from "../types";
-
 // レア度テーブル（重み = 確率%）。合計100。
 export const GACHA_RARITY_WEIGHTS: Record<Rarity, number> = {
   normal: 40, rare: 25, super_rare: 15,
   ultra_rare: 10, rainbow: 5, legend: 3, diamond: 1,
 };
 
-// レア度別の「ハズレ無し」ポイント付与量（景品がポイントだった場合）
-export const RARITY_POINT_REWARD: Record<Rarity, number> = {
-  normal: 1, rare: 2, super_rare: 3,
-  ultra_rare: 4, rainbow: 6, legend: 8, diamond: 10,
-};
-
-// ダブり時にもらえるかけら量（レア度が高いほど多い）
-export const RARITY_TO_KAKERA: Record<Rarity, number> = {
-  normal: 1, rare: 3, super_rare: 6,
-  ultra_rare: 10, rainbow: 20, legend: 40, diamond: 80,
-};
-
-// 交換所でアイテム/スタンプを買うのに必要なかけら（レア度別）
-export const KAKERA_PRICE: Record<Rarity, number> = {
-  normal: 5, rare: 12, super_rare: 25,
-  ultra_rare: 50, rainbow: 100, legend: 200, diamond: 400,
-};
-
-// 景品プールはスタンプ/アイテムの定義から rarity で自動構成してもよいし、
-// ランク内で「ポイント枠」も混ぜる。下は混在比率の例（各ランク内の内訳）。
-export const PRIZE_KIND_WEIGHTS = {
-  // ランクごとに [ポイント, スタンプ, アイテム] の出やすさ
-  default: { points: 20, stamp: 40, item: 40 },
-};
+export const RARITY_POINT_REWARD: Record<Rarity, number> = { ... };
+export const RARITY_TO_KAKERA: Record<Rarity, number> = { ... };
+export const KAKERA_PRICE: Record<Rarity, number> = { ... };
+export const PRIZE_KIND_WEIGHTS = { default: { points: 20, stamp: 40, item: 40 } };
 ```
-
-> **抽選アルゴリズム（lib/gacha.ts）**
-> 1. `GACHA_RARITY_WEIGHTS` で重み付き抽選 → ランク決定
-> 2. `PRIZE_KIND_WEIGHTS` で景品種別を決定
-> 3. スタンプ/アイテムなら、そのランクの未所持優先で抽選（全所持ならポイント or かけらにフォールバック）
-> 4. 既所持を引いたら `RARITY_TO_KAKERA` でかけら変換
-> 5. プール枯渇時は必ずポイント付与にフォールバック（エラーで止めない）
 
 ---
 
 ## 3. 保存データ（永続化スキーマ）
 
-`localStorage` キー: `otakara_mission_v1`（`schemaVersion` で将来移行）。
+`localStorage` キー: `otakara_mission_v1`。`schemaVersion` で将来移行。
+
+**現在の schemaVersion: 2**（v1→v2 マイグレーション済み）
 
 ```ts
 export interface SaveData {
-  schemaVersion: number;            // 例 1
-  activeProfileId: string;          // 最後に選んだプロフィール
+  schemaVersion: number;            // 現在 2
+  activeProfileId: string;
   settings: AppSettings;
-  profiles: Profile[];              // 姉/妹の2件
+  profiles: Profile[];
 }
 
 export interface AppSettings {
-  pinHash: string | null;           // おうちの人モードのPIN（ハッシュ化推奨）
-  yenPerPoint: number;              // 換算レート 既定 10
-  weeklyYenCap: number | null;      // 週上限 既定 300（null=上限なし）
-  appVersion: string;               // 表示用バージョン
+  pinHash: string | null;           // "plain:1234" 形式（ステップ4でハッシュ化）
+  yenPerPoint: number;              // 既定 10
+  weeklyYenCap: number | null;      // 既定 300
+  appVersion: string;
+
+  // ステップ1.5で追加（schemaVersion 2）
+  recoveryMissions: RecoveryMissionDef[];  // リカバリー専用ミッション一覧
+  recoveryWeeklyLimit: number;      // 週あたりリカバリー上限（既定2）
+  recoveryGrantsGacha: boolean;     // リカバリーでもガチャを引けるか（既定true）
+  monthlyGoalDays: number;          // 月間目標日数（既定20）
+  monthlyRewardPoints: number;      // 月間達成時のポイント報酬（既定10）
 }
 
 export interface Profile {
-  id: string;                       // "sister" / "younger" など
-  name: string;                     // 表示名
-  avatar: AvatarConfig;             // 現在の着せ替え
-  missions: MissionDef[];           // このプロフィールのミッション（編集反映）
+  id: string;
+  name: string;
+  avatar: AvatarConfig;
+  missions: MissionDef[];
   points: { total: number; thisWeek: number };
   kakera: number;
   ownedStampIds: string[];
   ownedItemIds: string[];
   dailyRecords: Record<string, DailyRecord>;  // キー "YYYY-MM-DD"
   weekState: WeekState;
+
+  // ステップ1.5で追加（schemaVersion 2）
+  monthlyRewardGiven: Record<string, boolean>;  // キー "YYYY-MM"
+  specialGachaTickets: number;                  // スペシャルガチャ券の枚数
 }
 
 export interface AvatarConfig {
@@ -169,24 +142,32 @@ export interface AvatarConfig {
 }
 
 export interface DailyRecord {
-  stamps: Record<string, string>;   // missionId -> stampId（押されたもの）
-  myMissionLabel?: string;          // 「じぶんできめた」内容
-  completed: boolean;               // 全クリア達成済みか
-  gachaPulled: boolean;             // その日ガチャを引いたか
+  stamps: Record<string, string>;   // missionId -> stampId
+  myMissionLabel?: string;
+  completed: boolean;
+  gachaPulled: boolean;
+
+  // ステップ1.5で追加（schemaVersion 2）
+  recovered?: boolean;              // リカバリーで達成扱いにした日
+  recoveryMissionId?: string;       // 使ったリカバリーミッションのid
 }
 
 export interface WeekState {
   weekStartDate: string;            // 今週の月曜 "YYYY-MM-DD"
-  completedDays: number;            // 今週のコンプリート日数（0〜7）
-  weeklyBonusGiven: boolean;        // 週間ボーナス付与済みか
+  completedDays: number;
+  weeklyBonusGiven: boolean;
+
+  // ステップ1.5で追加（schemaVersion 2）
+  recoveryUsedThisWeek: number;     // 今週のリカバリー使用回数（週またぎでリセット）
 }
 ```
 
 ### 不変条件（再掲・厳守）
 - 日付キーは端末ローカル時間の `YYYY-MM-DD`。
 - 1日のガチャは `gachaPulled` で1回に固定。
-- `weekStartDate` が変わったら週カウンタをリセットし、`points.thisWeek` は精算時のみリセット。
-- 所持・ポイント・かけらはバグで減らさない。書き込みは読み出し→更新→保存を一貫して行う。
+- `monthlyRewardGiven["YYYY-MM"]` で月間報酬の二重付与を防止。
+- `weekState.recoveryUsedThisWeek` は週またぎで 0 にリセット。
+- 所持・ポイント・かけらはバグで減らさない。
 
 ---
 
@@ -195,16 +176,28 @@ export interface WeekState {
 | ファイル | 責務 |
 |---|---|
 | `storage.ts` | SaveData の load/save、初期化、マイグレーション、export/import |
-| `date.ts` | 今日のキー生成、週の月曜計算、週またぎ判定 |
-| `points.ts` | スタンプ→ポイント計算（2倍含む）、ボーナス加算、今週分集計 |
+| `date.ts` | 日付キー生成、週の月曜計算、週またぎ判定、カレンダー配列生成 |
+| `points.ts` | スタンプ→ポイント計算（2倍含む）、ボーナス加算 |
 | `complete.ts` | 1日コンプリート判定、二重付与防止 |
-| `weekly.ts` | 週コンプリート日数の更新、週間ボーナス判定 |
-| `gacha.ts` | レア度抽選・景品抽選・ダブり→かけら変換・フォールバック |
-| `exchange.ts` | かけら交換所の購入処理 |
+| `weekly.ts` | 週コンプリート日数の更新、週間ボーナス判定（ステップ4） |
+| `gacha.ts` | レア度抽選・景品抽選・ダブり→かけら変換・フォールバック（ステップ2） |
+| `exchange.ts` | かけら交換所の購入処理（ステップ3） |
+| `stats.ts` | 達成率・曜日ステータス・週/月サマリーを dailyRecords から計算 |
+| `recovery.ts` | リカバリー候補判定・適用・残り回数 |
+| `monthly.ts` | 月間ごほうびの達成判定・付与 |
 
 ---
 
-## 5. コンテンツを増やす手順（運用メモ）
+## 5. スキーマバージョン履歴
+
+| バージョン | 変更内容 |
+|---|---|
+| 1 | 初期スキーマ（ステップ0/1） |
+| 2 | ステップ1.5追加: DailyRecord.recovered, WeekState.recoveryUsedThisWeek, Profile.monthlyRewardGiven/specialGachaTickets, AppSettings.recovery*/monthly* |
+
+---
+
+## 6. コンテンツを増やす手順（運用メモ）
 
 1. 画像（または絵文字）を用意。画像は `public/icons/...` に置く。
 2. `src/data/stamps.ts` か `items.ts` に1件追記（id重複に注意）。
