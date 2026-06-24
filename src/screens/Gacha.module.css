@@ -93,6 +93,20 @@
   z-index: 10;
 }
 
+.tapHint {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tapHintPulse 1.5s ease-in-out infinite;
+}
+
 .sceneCenter {
   display: flex;
   flex-direction: column;
@@ -313,4 +327,9 @@
   0%   { transform: scale(0)    rotate(-18deg); opacity: 0; }
   55%  { transform: scale(1.22) rotate(4deg); }
   100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}
+
+@keyframes tapHintPulse {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+  50%       { opacity: 1;    transform: translateX(-50%) scale(1.07); }
 }

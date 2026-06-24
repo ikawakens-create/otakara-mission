@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import type { Profile, Rarity } from "../types";
 import {
   drawRarity,
@@ -14,19 +14,14 @@ import styles from "./Gacha.module.css";
 type AnimPhase = "silhouette" | "machine" | "handle" | "capsule" | "open" | "reveal";
 const ANIM_PHASES: AnimPhase[] = ["silhouette", "machine", "handle", "capsule", "open", "reveal"];
 
-function getPhaseDuration(phase: AnimPhase, level: number): number {
-  const base: Record<AnimPhase, number> = {
-    silhouette: 700,
-    machine: 900,
-    handle: 800,
-    capsule: 900,
-    open: 650,
-    reveal: 1000,
-  };
-  // 高レア度ほどカプセル落下・フィニッシュが長くなる
-  const extra = phase === "capsule" ? level * 80 : phase === "reveal" ? level * 120 : 0;
-  return base[phase] + extra;
-}
+const PHASE_PROMPT: Record<AnimPhase, string> = {
+  silhouette: "？ なにが でるかな？",
+  machine:    "ハンドルを まわそう！",
+  handle:     "ぐるぐる…！",
+  capsule:    "あけてみよう！",
+  open:       "ぱかっ…！",
+  reveal:     "やったー！",
+};
 
 export type PullReason = "complete" | "recovery" | "ticket";
 
@@ -43,7 +38,7 @@ interface Props {
 const REASON_LABEL: Record<PullReason, string> = {
   complete: "🎊 コンプリートごほうびガチャ！",
   recovery: "⭐ リカバリーごほうびガチャ！",
-  ticket: "🎫 スペシャルけんガチャ！",
+  ticket:   "🎫 スペシャルけんガチャ！",
 };
 
 export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, dryRun }: Props) {
@@ -52,12 +47,6 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
   const [screenPhase, setScreenPhase] = useState<"intro" | "animating" | "result">("intro");
   const [animPhase, setAnimPhase] = useState<AnimPhase>("silhouette");
   const [result, setResult] = useState<GachaResult | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearTimer = useCallback(() => {
-    if (timerRef.current !== null) clearTimeout(timerRef.current);
-    timerRef.current = null;
-  }, []);
 
   const handlePull = useCallback(() => {
     const rarity = forcedRarity ?? drawRarity();
@@ -74,32 +63,23 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
   }, [profile, pullType, dateKey, onSave, forcedRarity, dryRun]);
 
   const skipToResult = useCallback(() => {
-    clearTimer();
     setScreenPhase("result");
-  }, [clearTimer]);
+  }, []);
 
-  useEffect(() => {
-    if (screenPhase !== "animating" || !result) return;
-
+  const advancePhase = useCallback(() => {
+    if (!result) return;
     const level = RARITY_VISUALS[result.rarity].level;
-
-    if (animPhase === "machine") soundMachine();
-    else if (animPhase === "capsule") soundCapsule();
-    else if (animPhase === "reveal") soundReveal(level);
-
-    const duration = getPhaseDuration(animPhase, level);
     const idx = ANIM_PHASES.indexOf(animPhase);
-
-    timerRef.current = setTimeout(() => {
-      if (idx < ANIM_PHASES.length - 1) {
-        setAnimPhase(ANIM_PHASES[idx + 1]);
-      } else {
-        setScreenPhase("result");
-      }
-    }, duration);
-
-    return clearTimer;
-  }, [screenPhase, animPhase, result, clearTimer]);
+    if (idx < ANIM_PHASES.length - 1) {
+      const next = ANIM_PHASES[idx + 1];
+      if (next === "machine") soundMachine();
+      else if (next === "capsule") soundCapsule();
+      else if (next === "reveal") soundReveal(level);
+      setAnimPhase(next);
+    } else {
+      setScreenPhase("result");
+    }
+  }, [animPhase, result]);
 
   function renderIntro() {
     const ticketCount = profile.specialGachaTickets;
@@ -132,21 +112,23 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
         ? { filter: `drop-shadow(0 0 16px ${visual.glowColor})` }
         : undefined;
 
+    const tapLabel = animPhase === "reveal" ? "タップで けっかを みる ▶" : "タップで つぎへ ▶";
+
     return (
-      <div className={styles.sceneWrap} onClick={skipToResult} role="button" aria-label="とばす">
+      <div className={styles.sceneWrap} onClick={advancePhase} role="button" aria-label="つぎへ">
         {animPhase === "silhouette" && (
           <div className={styles.sceneCenter}>
             <div className={styles.silhouette}>
               <span className={styles.silhouetteQ}>❓</span>
             </div>
-            <p className={styles.sceneHint}>なにがでるかな…</p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT.silhouette}</p>
           </div>
         )}
 
         {animPhase === "machine" && (
           <div className={styles.sceneCenter}>
             <div className={styles.machineAppear} aria-hidden>🎰</div>
-            <p className={styles.sceneHint}>ガチャガチャ…</p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT.machine}</p>
           </div>
         )}
 
@@ -156,7 +138,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
               <span className={styles.machineEmoji2} aria-hidden>🎰</span>
               <span className={styles.handleSpin} aria-hidden>🔄</span>
             </div>
-            <p className={styles.sceneHint}>まわすよ！</p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT.handle}</p>
           </div>
         )}
 
@@ -166,7 +148,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
               className={styles.capsuleFall}
               style={{ backgroundColor: CAPSULE_CSS_COLORS[visual.capsule], ...glowStyle }}
             />
-            <p className={styles.sceneHint}>でてきた！</p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT.capsule}</p>
           </div>
         )}
 
@@ -178,7 +160,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
             >
               <span className={styles.capsuleOpenInner} aria-hidden>✨</span>
             </div>
-            <p className={styles.sceneHint}>あけるよ…</p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT.open}</p>
           </div>
         )}
 
@@ -190,8 +172,11 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
             <p className={styles.revealRarity} style={{ color: CAPSULE_CSS_COLORS[visual.capsule] }}>
               {visual.label}
             </p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT.reveal}</p>
           </div>
         )}
+
+        <p className={styles.tapHint}>{tapLabel}</p>
 
         <button className={styles.skipBtn} onClick={(e) => { e.stopPropagation(); skipToResult(); }}>
           とばす ▶
