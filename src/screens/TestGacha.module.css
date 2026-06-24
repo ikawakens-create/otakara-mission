@@ -1,0 +1,92 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+.header {
+  background: #555;
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backBtn {
+  font-size: 1.2rem;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.body {
+  flex: 1;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hint {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  text-align: center;
+}
+
+.rarityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.rarityBtn {
+  border: none;
+  border-radius: 16px;
+  padding: 18px 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  min-height: 64px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.rarityBtn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.randomBtn {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #ffcc00, #ff6eb4);
+  border: none;
+  border-radius: 16px;
+  padding: 20px 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  min-height: 64px;
+  box-shadow: 0 4px 20px rgba(255, 110, 180, 0.45);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.randomBtn:active {
+  transform: scale(0.96);
+}
