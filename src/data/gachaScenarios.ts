@@ -39,3 +39,31 @@ export function capsForLook(look: BuildupLook, level: number): string[] {
   if (look === "hide")  return PRESET_NORMAL;
   return presetForLevel(level);
 }
+
+// 落下カプセルの見た目（演出に合わせて隠す/煽る）
+export function dropLookForScenario(
+  scenario: ScenarioId,
+  trueCapsule: "normal" | "gold" | "rainbow",
+): "normal" | "gold" | "rainbow" {
+  const look = SCENARIO_BUILDUP[scenario];
+  if (look === "hide")  return "normal";
+  if (look === "tease") return "rainbow";
+  return trueCapsule;
+}
+
+// お披露目の演出タイプ
+export type RevealEffect = "normal" | "burst" | "cutin" | "soft";
+export const SCENARIO_REVEAL: Record<ScenarioId, RevealEffect> = {
+  standard:   "normal",
+  reversal:   "burst",
+  fakeout:    "soft",
+  guaranteed: "cutin",
+};
+
+// お披露目の一言（やさしく前向きに）
+export const SCENARIO_REVEAL_TEXT: Record<ScenarioId, string> = {
+  standard:   "やったー！",
+  reversal:   "うわぁ…！ やったー！",
+  fakeout:    "ふつう…でも かわいい！",
+  guaranteed: "かくてい〜！ やったー！",
+};
