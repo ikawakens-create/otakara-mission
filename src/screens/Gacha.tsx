@@ -126,27 +126,17 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           </div>
         )}
 
-        {animPhase === "machine" && (
+        {(animPhase === "machine" || animPhase === "handle" || animPhase === "capsule") && (
           <div className={styles.sceneCenter}>
-            <GachaMachine level={visual.level} size={260} className={styles.machineAppear} />
-            <p className={styles.sceneHint}>{PHASE_PROMPT.machine}</p>
-          </div>
-        )}
-
-        {animPhase === "handle" && (
-          <div className={styles.sceneCenter}>
-            <GachaMachine level={visual.level} size={260} />
-            <p className={styles.sceneHint}>{PHASE_PROMPT.handle}</p>
-          </div>
-        )}
-
-        {animPhase === "capsule" && (
-          <div className={styles.sceneCenter}>
-            <div
-              className={styles.capsuleFall}
-              style={{ backgroundColor: CAPSULE_CSS_COLORS[visual.capsule], ...glowStyle }}
+            <GachaMachine
+              level={visual.level}
+              size={260}
+              className={animPhase === "machine" ? styles.machineAppear : undefined}
+              turning={animPhase === "handle"}
+              dropCapsule={animPhase === "capsule" ? visual.capsule : null}
+              jiggle={animPhase === "handle"}
             />
-            <p className={styles.sceneHint}>{PHASE_PROMPT.capsule}</p>
+            <p className={styles.sceneHint}>{PHASE_PROMPT[animPhase]}</p>
           </div>
         )}
 
