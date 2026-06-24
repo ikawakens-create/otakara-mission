@@ -9,6 +9,7 @@ import {
 } from "../lib/gacha";
 import { soundPull, soundMachine, soundCapsule, soundReveal } from "../lib/sounds";
 import { RARITY_VISUALS, CAPSULE_CSS_COLORS } from "../data/gachaVisuals";
+import GachaMachine from "../components/GachaMachine";
 import styles from "./Gacha.module.css";
 
 type AnimPhase = "silhouette" | "machine" | "handle" | "capsule" | "open" | "reveal";
@@ -127,17 +128,14 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
 
         {animPhase === "machine" && (
           <div className={styles.sceneCenter}>
-            <div className={styles.machineAppear} aria-hidden>🎰</div>
+            <GachaMachine level={visual.level} size={260} className={styles.machineAppear} />
             <p className={styles.sceneHint}>{PHASE_PROMPT.machine}</p>
           </div>
         )}
 
         {animPhase === "handle" && (
           <div className={styles.sceneCenter}>
-            <div className={styles.handleRow}>
-              <span className={styles.machineEmoji2} aria-hidden>🎰</span>
-              <span className={styles.handleSpin} aria-hidden>🔄</span>
-            </div>
+            <GachaMachine level={visual.level} size={260} />
             <p className={styles.sceneHint}>{PHASE_PROMPT.handle}</p>
           </div>
         )}

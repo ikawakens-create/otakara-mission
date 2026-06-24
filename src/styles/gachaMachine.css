@@ -1,0 +1,36 @@
+/* Global CSS for GachaMachine SVG animations.
+   Must NOT be CSS Modules — class names must match SVG class attributes exactly. */
+
+@keyframes spinrb {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.rbrot {
+  animation: spinrb 3.5s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: .2; transform: scale(.7); }
+  50%       { opacity: 1;  transform: scale(1.1); }
+}
+.tw {
+  animation: twinkle 1.1s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.tw2 {
+  animation: twinkle 1.1s ease-in-out infinite .55s;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes sweep {
+  0%          { opacity: 0; }
+  40%, 60%    { opacity: .9; }
+  100%        { opacity: 0; }
+}
+.sweep {
+  animation: sweep 1.8s ease-in-out infinite;
+}
