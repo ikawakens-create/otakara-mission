@@ -12,14 +12,13 @@ import { RARITY_VISUALS, CAPSULE_CSS_COLORS } from "../data/gachaVisuals";
 import GachaMachine from "../components/GachaMachine";
 import styles from "./Gacha.module.css";
 
-type AnimPhase = "silhouette" | "machine" | "handle" | "capsule" | "open" | "reveal";
-const ANIM_PHASES: AnimPhase[] = ["silhouette", "machine", "handle", "capsule", "open", "reveal"];
+type AnimPhase = "silhouette" | "machine" | "capsule" | "open" | "reveal";
+const ANIM_PHASES: AnimPhase[] = ["silhouette", "machine", "capsule", "open", "reveal"];
 
 const PHASE_PROMPT: Record<AnimPhase, string> = {
   silhouette: "？ なにが でるかな？",
   machine:    "ハンドルを まわそう！",
-  handle:     "ぐるぐる…！",
-  capsule:    "あけてみよう！",
+  capsule:    "ぐるぐる…ころん！",
   open:       "ぱかっ…！",
   reveal:     "やったー！",
 };
@@ -126,15 +125,15 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           </div>
         )}
 
-        {(animPhase === "machine" || animPhase === "handle" || animPhase === "capsule") && (
+        {(animPhase === "machine" || animPhase === "capsule") && (
           <div className={styles.sceneCenter}>
             <GachaMachine
               level={visual.level}
               size={260}
               className={animPhase === "machine" ? styles.machineAppear : undefined}
-              turning={animPhase === "handle"}
+              turning={animPhase === "capsule"}
               dropCapsule={animPhase === "capsule" ? visual.capsule : null}
-              jiggle={animPhase === "handle"}
+              jiggle={animPhase === "capsule"}
             />
             <p className={styles.sceneHint}>{PHASE_PROMPT[animPhase]}</p>
           </div>

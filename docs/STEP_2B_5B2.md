@@ -65,24 +65,19 @@ export interface GachaMachineProps {
 
 ---
 
-## 2. Gacha.tsx の組み込み（マシンを通しで表示）
-今は machine / handle フェーズで **別々に** GachaMachine を描いている。これだと切替時にマシンが
-一瞬リセットされる。**machine・handle・capsule の3フェーズは1つの GachaMachine を出し続け、
-props だけ変える**形にする（チラつき防止・動きが自然に繋がる）。
+## 2. Gacha.tsx の組み込み（マシンを通しで表示・1タップ統合）
+**handle フェーズを廃止し**、ハンドル回転とカプセル落下を capsule フェーズ1つにまとめた。
+タップ進行は silhouette → machine → capsule → open → reveal の5段階。
 
 - `silhouette`：現状維持（❓シルエット）。
-- `machine` / `handle` / `capsule`：**共通の GachaMachine を1つ**描画し、props を phase で変える：
-  - `turning = (animPhase === "handle")`
+- `machine` / `capsule`：**共通の GachaMachine を1つ**描画し、props を phase で変える：
+  - `turning = (animPhase === "capsule")`  ← capsule フェーズでハンドルが回り始める
   - `dropCapsule = (animPhase === "capsule") ? visual.capsule : null`
-  - `level = visual.level`
-  - （任意）`jiggle = (animPhase === "handle")`
-  - 文言（sceneHint）は従来どおり phase ごとに表示。
-  - capsule フェーズの旧・仮カプセル（`capsuleFall` の平らな四角）は GachaMachine の落下表示に置き換える。
+  - `jiggle = (animPhase === "capsule")`
+  - ハンドル回転(0.8s)の後にカプセル落下が始まるよう `.capDrop` に `animation-delay: 0.8s` を設定。
+  - capsule フェーズの旧・仮カプセル（`capsuleFall` の平らな四角）は GachaMachine の落下表示に置き換え済み。
 - `open` / `reveal`：現状維持（カプセル開封→景品お披露目）。
 - `visual.capsule` は `RARITY_VISUALS[result.rarity].capsule` を使う。
-
-> 実装メモ：3フェーズで同じ要素として扱われるよう、条件分岐の作りに注意
-> （machine/handle/capsule を1つの分岐にまとめ、中で props を出し分けると良い）。
 
 ---
 

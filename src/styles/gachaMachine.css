@@ -46,10 +46,10 @@
   to   { transform: rotate(360deg); }
 }
 
-/* Capsule drop into ejection slot */
+/* Capsule drop into ejection slot — delay matches handle spin (0.8s) */
 .capDrop {
   transform-box: fill-box;
-  animation: capDrop 1s ease-in 1 both;
+  animation: capDrop 1s ease-in 0.8s 1 both;
 }
 @keyframes capDrop {
   0%   { transform: translateY(-150px); opacity: 0; }
