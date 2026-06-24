@@ -34,3 +34,41 @@
 .sweep {
   animation: sweep 1.8s ease-in-out infinite;
 }
+
+/* Handle rotation */
+.handleTurn {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: handleSpin 0.8s ease-in-out 1 both;
+}
+@keyframes handleSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Capsule drop into ejection slot */
+.capDrop {
+  transform-box: fill-box;
+  animation: capDrop 1s ease-in 1 both;
+}
+@keyframes capDrop {
+  0%   { transform: translateY(-150px); opacity: 0; }
+  20%  { opacity: 1; }
+  75%  { transform: translateY(0); }
+  88%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+/* Ball contents jiggle (optional) */
+.ballJiggle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ballJiggle 0.5s ease-in-out 1;
+}
+@keyframes ballJiggle {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-4deg); }
+  50%  { transform: rotate(4deg); }
+  75%  { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg); }
+}

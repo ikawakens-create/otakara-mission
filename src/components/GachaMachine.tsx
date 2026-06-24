@@ -5,6 +5,9 @@ export interface GachaMachineProps {
   level?: number;
   size?: number;
   className?: string;
+  turning?: boolean;
+  dropCapsule?: "normal" | "gold" | "rainbow" | null;
+  jiggle?: boolean;
 }
 
 const PRESET_NORMAL = ["cYellow", "cGreen", "cBlue", "cPink"];
@@ -99,7 +102,26 @@ function fillCaps(colors: string[]): string {
   return out;
 }
 
-export default function GachaMachine({ caps, level = 0, size = 260, className }: GachaMachineProps) {
+function buildHandleGroup(turning: boolean): string {
+  const cls = turning ? ' class="handleTurn"' : '';
+  return `<g${cls}>
+    <rect x="143" y="258" width="14" height="56" rx="7" fill="#ffcf3f" stroke="#e89a23" stroke-width="3"/>
+    <rect x="122" y="279" width="56" height="14" rx="7" fill="#ffcf3f" stroke="#e89a23" stroke-width="3"/>
+    <circle cx="150" cy="286" r="8" fill="#fff3c0" stroke="#e89a23" stroke-width="2.5"/>
+    <circle cx="150" cy="286" r="3" fill="#b9760f"/>
+  </g>`;
+}
+
+function buildDropCapsule(kind: "normal" | "gold" | "rainbow"): string {
+  const cx = 150, cy = 347, r = 13;
+  let inner: string;
+  if (kind === "gold") inner = goldCap(cx, cy, r);
+  else if (kind === "rainbow") inner = rainbowCap(cx, cy, r);
+  else inner = plainCap(cx, cy, r, "cYellow");
+  return `<g class="capDrop">${inner}</g>`;
+}
+
+export default function GachaMachine({ caps, level = 0, size = 260, className, turning = false, dropCapsule = null, jiggle = false }: GachaMachineProps) {
   const colors = caps ?? presetForLevel(level);
   const capsHtml = fillCaps(colors);
   const svgHeight = Math.round(size * 380 / 300);
@@ -112,13 +134,11 @@ export default function GachaMachine({ caps, level = 0, size = 260, className }:
     <path d="M84 250 L216 250 Q224 250 222 262 L214 312 Q212 320 202 320 L98 320 Q88 320 86 312 L78 262 Q76 250 84 250 Z" fill="url(#body)" stroke="#e15691" stroke-width="3"/>
     <ellipse cx="150" cy="252" rx="66" ry="10" fill="url(#bodyTop)"/>
     <circle cx="150" cy="286" r="26" fill="#ffe089" stroke="#e89a23" stroke-width="3.5"/>
-    <rect x="143" y="258" width="14" height="56" rx="7" fill="#ffcf3f" stroke="#e89a23" stroke-width="3"/>
-    <rect x="122" y="279" width="56" height="14" rx="7" fill="#ffcf3f" stroke="#e89a23" stroke-width="3"/>
-    <circle cx="150" cy="286" r="8" fill="#fff3c0" stroke="#e89a23" stroke-width="2.5"/>
-    <circle cx="150" cy="286" r="3" fill="#b9760f"/>
+    ${buildHandleGroup(turning)}
+    ${dropCapsule ? buildDropCapsule(dropCapsule) : ''}
     <circle cx="${BX}" cy="${BY}" r="${BR+5}" fill="url(#glass)" stroke="#ff9ec4" stroke-width="6"/>
     <clipPath id="ball"><circle cx="${BX}" cy="${BY}" r="${BR}"/></clipPath>
-    <g clip-path="url(#ball)">${capsHtml}</g>
+    <g clip-path="url(#ball)"${jiggle ? ' class="ballJiggle"' : ''}>${capsHtml}</g>
     <ellipse cx="115" cy="106" rx="26" ry="38" fill="#fff" opacity=".38" transform="rotate(-22 115 106)"/>
     <circle cx="186" cy="104" r="9" fill="#fff" opacity=".45"/>
     <circle cx="${BX}" cy="${BY}" r="${BR+5}" fill="none" stroke="#fff" stroke-width="2" opacity=".4"/>
