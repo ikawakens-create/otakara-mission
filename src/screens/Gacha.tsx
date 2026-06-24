@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { Profile } from "../types";
+import type { Profile, Rarity } from "../types";
 import {
   drawRarity,
   drawPrize,
@@ -36,6 +36,8 @@ interface Props {
   dateKey: string;
   onSave: (updated: Profile) => void;
   onClose: () => void;
+  forcedRarity?: Rarity;
+  dryRun?: boolean;
 }
 
 const REASON_LABEL: Record<PullReason, string> = {
@@ -44,7 +46,7 @@ const REASON_LABEL: Record<PullReason, string> = {
   ticket: "🎫 スペシャルけんガチャ！",
 };
 
-export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose }: Props) {
+export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, dryRun }: Props) {
   const pullType: PullType = pullReason === "ticket" ? "ticket" : "daily";
 
   const [screenPhase, setScreenPhase] = useState<"intro" | "animating" | "result">("intro");
@@ -58,16 +60,18 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
   }, []);
 
   const handlePull = useCallback(() => {
-    const rarity = drawRarity();
+    const rarity = forcedRarity ?? drawRarity();
     const res = drawPrize(rarity, profile);
-    const updated = applyGachaResult(profile, res, pullType, dateKey);
-    onSave(updated);
+    if (!dryRun) {
+      const updated = applyGachaResult(profile, res, pullType, dateKey);
+      onSave(updated);
+    }
     setResult(res);
     setScreenPhase("animating");
     setAnimPhase("silhouette");
     soundPull();
     if (navigator.vibrate) navigator.vibrate(60);
-  }, [profile, pullType, dateKey, onSave]);
+  }, [profile, pullType, dateKey, onSave, forcedRarity, dryRun]);
 
   const skipToResult = useCallback(() => {
     clearTimer();
@@ -233,6 +237,18 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           <div className={styles.pointsMsg}>
             ポイント +{result.prizePoints}
           </div>
+        )}
+
+        {dryRun && (
+          <button
+            className={styles.pullBtn}
+            onClick={() => {
+              setResult(null);
+              setScreenPhase("intro");
+            }}
+          >
+            もう1回みる
+          </button>
         )}
 
         <button className={styles.closeBtn} onClick={onClose}>

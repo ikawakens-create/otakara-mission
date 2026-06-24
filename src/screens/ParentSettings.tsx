@@ -7,9 +7,10 @@ interface Props {
   saveData: SaveData;
   onUpdate: (d: SaveData) => void;
   onBack: () => void;
+  onOpenTestGacha: () => void;
 }
 
-export default function ParentSettings({ saveData, onUpdate, onBack }: Props) {
+export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestGacha }: Props) {
   const { settings } = saveData;
   const [addEmoji, setAddEmoji] = useState("📝");
   const [addLabel, setAddLabel] = useState("");
@@ -131,6 +132,20 @@ export default function ParentSettings({ saveData, onUpdate, onBack }: Props) {
               onClick={() => updateSettings({ recoveryGrantsGacha: !settings.recoveryGrantsGacha })}
             >
               <div className={styles.toggleThumb} />
+            </button>
+          </div>
+        </div>
+
+        {/* 演出テスト */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>開発ツール</div>
+          <div className={styles.settingRow}>
+            <div>
+              <div className={styles.settingLabel}>ガチャ演出のかくにん</div>
+              <div className={styles.settingHint}>データを変えずに演出を何度でも再生できます</div>
+            </div>
+            <button className={styles.changePinBtn} onClick={onOpenTestGacha}>
+              🎬 演出をテスト
             </button>
           </div>
         </div>

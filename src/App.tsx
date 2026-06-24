@@ -4,10 +4,11 @@ import { loadSaveData, saveSaveData } from "./lib/storage";
 import ProfileSelect from "./screens/ProfileSelect";
 import Home from "./screens/Home";
 import ParentSettings from "./screens/ParentSettings";
+import TestGacha from "./screens/TestGacha";
 import PinPad from "./components/PinPad";
 import "./styles/global.css";
 
-type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings";
+type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha";
 
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
@@ -43,6 +44,10 @@ export default function App() {
     }
   }, [saveData]);
 
+  const handleOpenTestGacha = useCallback(() => {
+    setScreen("testGacha");
+  }, []);
+
   const handlePinVerified = useCallback(() => {
     setScreen("parentSettings");
   }, []);
@@ -65,6 +70,17 @@ export default function App() {
         saveData={saveData}
         onUpdate={handleUpdate}
         onBack={() => setScreen("home")}
+        onOpenTestGacha={handleOpenTestGacha}
+      />
+    );
+  }
+
+  if (screen === "testGacha") {
+    const activeProfile = saveData.profiles.find((p) => p.id === saveData.activeProfileId) ?? saveData.profiles[0];
+    return (
+      <TestGacha
+        profile={activeProfile}
+        onBack={() => setScreen("parentSettings")}
       />
     );
   }
