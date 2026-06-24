@@ -90,3 +90,40 @@
 .randomBtn:active {
   transform: scale(0.96);
 }
+
+.sectionLabel {
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: var(--color-text-light);
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+.scenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.scenarioBtn {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 14px 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  min-height: 56px;
+  transition: transform 0.12s, background 0.12s;
+}
+
+.scenarioBtn:active {
+  transform: scale(0.95);
+}
+
+.scenarioBtnActive {
+  background: rgba(255, 200, 50, 0.25);
+  border-color: #ffcc22;
+  color: #fff;
+}

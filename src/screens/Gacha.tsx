@@ -9,6 +9,12 @@ import {
 } from "../lib/gacha";
 import { soundPull, soundMachine, soundCapsule, soundReveal } from "../lib/sounds";
 import { RARITY_VISUALS, CAPSULE_CSS_COLORS } from "../data/gachaVisuals";
+import {
+  pickScenario,
+  SCENARIO_BUILDUP,
+  capsForLook,
+  type ScenarioId,
+} from "../data/gachaScenarios";
 import GachaMachine from "../components/GachaMachine";
 import styles from "./Gacha.module.css";
 
@@ -32,6 +38,7 @@ interface Props {
   onSave: (updated: Profile) => void;
   onClose: () => void;
   forcedRarity?: Rarity;
+  forcedScenario?: ScenarioId;
   dryRun?: boolean;
 }
 
@@ -41,26 +48,29 @@ const REASON_LABEL: Record<PullReason, string> = {
   ticket:   "🎫 スペシャルけんガチャ！",
 };
 
-export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, dryRun }: Props) {
+export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, forcedScenario, dryRun }: Props) {
   const pullType: PullType = pullReason === "ticket" ? "ticket" : "daily";
 
   const [screenPhase, setScreenPhase] = useState<"intro" | "animating" | "result">("intro");
   const [animPhase, setAnimPhase] = useState<AnimPhase>("silhouette");
   const [result, setResult] = useState<GachaResult | null>(null);
+  const [scenario, setScenario] = useState<ScenarioId>("standard");
 
   const handlePull = useCallback(() => {
     const rarity = forcedRarity ?? drawRarity();
+    const sc = forcedScenario ?? pickScenario(rarity);
     const res = drawPrize(rarity, profile);
     if (!dryRun) {
       const updated = applyGachaResult(profile, res, pullType, dateKey);
       onSave(updated);
     }
+    setScenario(sc);
     setResult(res);
     setScreenPhase("animating");
     setAnimPhase("silhouette");
     soundPull();
     if (navigator.vibrate) navigator.vibrate(60);
-  }, [profile, pullType, dateKey, onSave, forcedRarity, dryRun]);
+  }, [profile, pullType, dateKey, onSave, forcedRarity, forcedScenario, dryRun]);
 
   const skipToResult = useCallback(() => {
     setScreenPhase("result");
@@ -130,6 +140,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
             <GachaMachine
               level={visual.level}
               size={260}
+              caps={capsForLook(SCENARIO_BUILDUP[scenario], visual.level)}
               className={animPhase === "machine" ? styles.machineAppear : undefined}
               turning={animPhase === "capsule"}
               dropCapsule={animPhase === "capsule" ? visual.capsule : null}

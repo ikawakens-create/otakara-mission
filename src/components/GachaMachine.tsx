@@ -10,11 +10,11 @@ export interface GachaMachineProps {
   jiggle?: boolean;
 }
 
-const PRESET_NORMAL = ["cYellow", "cGreen", "cBlue", "cPink"];
-const PRESET_RARE   = ["cYellow", "cGold", "cBlue", "cRainbow", "cPink", "cGreen", "cGold", "cRainbow"];
-const PRESET_GOLD   = ["cGold", "cRainbow", "cGold", "cRainbow", "cGold"];
+export const PRESET_NORMAL = ["cYellow", "cGreen", "cBlue", "cPink"];
+export const PRESET_RARE   = ["cYellow", "cGold", "cBlue", "cRainbow", "cPink", "cGreen", "cGold", "cRainbow"];
+export const PRESET_GOLD   = ["cGold", "cRainbow", "cGold", "cRainbow", "cGold"];
 
-function presetForLevel(level: number): string[] {
+export function presetForLevel(level: number): string[] {
   if (level <= 2) return PRESET_NORMAL;
   if (level <= 4) return PRESET_RARE;
   return PRESET_GOLD;
