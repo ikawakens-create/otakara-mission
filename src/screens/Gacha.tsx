@@ -13,6 +13,9 @@ import {
   pickScenario,
   SCENARIO_BUILDUP,
   capsForLook,
+  dropLookForScenario,
+  SCENARIO_REVEAL,
+  SCENARIO_REVEAL_TEXT,
   type ScenarioId,
 } from "../data/gachaScenarios";
 import GachaMachine from "../components/GachaMachine";
@@ -121,6 +124,8 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
       visual.level > 0
         ? { filter: `drop-shadow(0 0 16px ${visual.glowColor})` }
         : undefined;
+    const effect = SCENARIO_REVEAL[scenario];
+    const revealText = SCENARIO_REVEAL_TEXT[scenario];
 
     const tapLabel = animPhase === "reveal" ? "タップで けっかを みる ▶" : "タップで つぎへ ▶";
 
@@ -143,7 +148,7 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
               caps={capsForLook(SCENARIO_BUILDUP[scenario], visual.level)}
               className={animPhase === "machine" ? styles.machineAppear : undefined}
               turning={animPhase === "capsule"}
-              dropCapsule={animPhase === "capsule" ? visual.capsule : null}
+              dropCapsule={animPhase === "capsule" ? dropLookForScenario(scenario, visual.capsule) : null}
               jiggle={animPhase === "capsule"}
             />
             <p className={styles.sceneHint}>{PHASE_PROMPT[animPhase]}</p>
@@ -162,15 +167,31 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           </div>
         )}
 
+        {animPhase === "reveal" && effect === "burst" && (
+          <div className={styles.revealFlash} aria-hidden />
+        )}
+
         {animPhase === "reveal" && (
           <div className={styles.sceneCenter}>
-            <div className={styles.prizeReveal} style={filterStyle} aria-hidden>
+            {effect === "cutin" && (
+              <div className={styles.revealCutin} aria-hidden>✨ かくてい！✨</div>
+            )}
+            <div
+              className={[
+                styles.prizeReveal,
+                effect === "burst" ? styles.revealBurst     : "",
+                effect === "soft"  ? styles.revealSoft      : "",
+                effect === "cutin" ? styles.revealCutinPrize : "",
+              ].filter(Boolean).join(" ")}
+              style={filterStyle}
+              aria-hidden
+            >
               {result.prizeAsset}
             </div>
             <p className={styles.revealRarity} style={{ color: CAPSULE_CSS_COLORS[visual.capsule] }}>
               {visual.label}
             </p>
-            <p className={styles.sceneHint}>{PHASE_PROMPT.reveal}</p>
+            <p className={styles.sceneHint}>{revealText}</p>
           </div>
         )}
 
