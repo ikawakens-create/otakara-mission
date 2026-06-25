@@ -52,12 +52,12 @@ export function dropLookForScenario(
 }
 
 // お披露目の演出タイプ
-export type RevealEffect = "normal" | "burst" | "cutin" | "soft";
+export type RevealEffect = "normal" | "burst" | "soft";
 export const SCENARIO_REVEAL: Record<ScenarioId, RevealEffect> = {
   standard:   "normal",
   reversal:   "burst",
   fakeout:    "soft",
-  guaranteed: "cutin",
+  guaranteed: "burst",
 };
 
 // お披露目の一言（やさしく前向きに）
@@ -67,3 +67,39 @@ export const SCENARIO_REVEAL_TEXT: Record<ScenarioId, string> = {
   fakeout:    "ふつう…でも かわいい！",
   guaranteed: "かくてい〜！ やったー！",
 };
+
+// ── カットイン段階 ────────────────────────────────────────────
+export type CutinLevel = "none" | "oh" | "maybe" | "hot" | "confirmed";
+
+export const CUTIN_TEXT: Record<CutinLevel, string> = {
+  none:      "",
+  oh:        "お！",
+  maybe:     "もしかして？？",
+  hot:       "激アツ！！",
+  confirmed: "かくてい！！",
+};
+
+// 結果レア度ごとの段階の重み（各行 合計100）。高い段階は高レアだけ＝嘘にならない。
+export const CUTIN_WEIGHTS: Record<Rarity, Partial<Record<CutinLevel, number>>> = {
+  normal:     { none: 100 },
+  rare:       { none: 80, oh: 20 },
+  super_rare: { none: 30, oh: 50, maybe: 20 },
+  ultra_rare: { none: 20, oh: 35, maybe: 35, hot: 10 },
+  rainbow:    { none: 10, oh: 25, maybe: 35, hot: 30 },
+  legend:     { none: 5,  oh: 15, maybe: 30, hot: 50 },
+  diamond:    { confirmed: 100 },
+};
+
+export function pickCutin(rarity: Rarity, scenario: ScenarioId): CutinLevel {
+  if (scenario === "fakeout") return "none";
+  const w = CUTIN_WEIGHTS[rarity];
+  const entries = Object.entries(w) as [CutinLevel, number][];
+  const total = entries.reduce((s, [, n]) => s + n, 0);
+  let roll = Math.random() * total;
+  let level: CutinLevel = "none";
+  for (const [lv, n] of entries) { roll -= n; if (roll < 0) { level = lv; break; } }
+  if (scenario === "reversal") {
+    if (level === "hot" || level === "confirmed") level = "maybe";
+  }
+  return level;
+}
