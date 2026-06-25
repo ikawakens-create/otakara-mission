@@ -334,6 +334,32 @@
   50%       { opacity: 1;    transform: translateX(-50%) scale(1.07); }
 }
 
+/* ── retry: 「もう1回 タップ！！！」強調 ────────────────── */
+
+.retryPrompt {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, #ff2200, #ff8800, #ffcc00);
+  padding: 20px 40px;
+  border-radius: 16px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: 0 0 36px rgba(255, 80, 0, 0.9), 0 0 72px rgba(255, 180, 0, 0.55);
+  border: 3px solid #ffcc00;
+  animation: retryPromptPulse 0.7s ease-in-out infinite;
+}
+@keyframes retryPromptPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    box-shadow: 0 0 36px rgba(255,80,0,.9); }
+  50%       { transform: translate(-50%, -50%) scale(1.07); box-shadow: 0 0 56px rgba(255,80,0,1), 0 0 90px rgba(255,180,0,.7); }
+}
+
 /* ── Cutin banner (capsule フェーズ) ────────────────── */
 
 .cutinBanner {
