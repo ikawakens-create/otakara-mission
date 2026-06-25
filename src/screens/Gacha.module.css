@@ -334,49 +334,172 @@
   50%       { opacity: 1;    transform: translateX(-50%) scale(1.07); }
 }
 
+/* ── Cutin banner (capsule フェーズ) ────────────────── */
+
+.cutinBanner {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
+  font-weight: bold;
+  padding: 14px 44px;
+  border-radius: 12px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  z-index: 20;
+  pointer-events: none;
+  animation: cutinSlideIn 0.38s cubic-bezier(0.17, 0.89, 0.32, 1.3) both,
+             cutinFadeOut 0.35s ease-in 1.05s both;
+}
+
+@keyframes cutinSlideIn {
+  from { transform: translateX(-50%) translateX(-60vw); opacity: 0; }
+  to   { transform: translateX(-50%) translateX(0);     opacity: 1; }
+}
+@keyframes cutinFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* お！ — 青系、控えめ */
+.cutinOh {
+  background: linear-gradient(135deg, #1e8fcf, #48d3f5);
+  color: #fff;
+  font-size: 1.45rem;
+  box-shadow: 0 4px 18px rgba(30, 143, 207, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+/* もしかして？？ — 紫系、ぷるぷる */
+.cutinMaybe {
+  background: linear-gradient(135deg, #7b2fd4, #c96aff);
+  color: #fff;
+  font-size: 1.6rem;
+  box-shadow: 0 4px 24px rgba(123, 47, 212, 0.7);
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  animation: cutinSlideIn 0.38s cubic-bezier(0.17, 0.89, 0.32, 1.3) both,
+             cutinWobble 0.5s ease 0.4s 1,
+             cutinFadeOut 0.35s ease-in 1.05s both;
+}
+@keyframes cutinWobble {
+  0%   { transform: translateX(-50%) rotate(0deg); }
+  20%  { transform: translateX(-50%) rotate(-3deg) scale(1.04); }
+  50%  { transform: translateX(-50%) rotate(3deg)  scale(1.06); }
+  75%  { transform: translateX(-50%) rotate(-2deg) scale(1.03); }
+  100% { transform: translateX(-50%) rotate(0deg)  scale(1); }
+}
+
+/* 激アツ！！ — 赤炎グラデ、激しいシェイク */
+.cutinHot {
+  background: linear-gradient(135deg, #ff2200, #ff8800, #ffcc00);
+  color: #fff;
+  font-size: 1.85rem;
+  box-shadow: 0 0 28px rgba(255, 80, 0, 0.9), 0 0 56px rgba(255, 180, 0, 0.55);
+  border: 3px solid #ffcc00;
+  clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+  animation: cutinSlideIn 0.38s cubic-bezier(0.17, 0.89, 0.32, 1.3) both,
+             cutinShake 0.5s linear 0.4s 1,
+             cutinFadeOut 0.35s ease-in 1.05s both;
+}
+@keyframes cutinShake {
+  0%,100% { transform: translateX(-50%) rotate(0deg); }
+  15%     { transform: translateX(calc(-50% + 7px)) rotate(1.5deg); }
+  30%     { transform: translateX(calc(-50% - 7px)) rotate(-1.5deg); }
+  45%     { transform: translateX(calc(-50% + 5px)) rotate(1deg); }
+  60%     { transform: translateX(calc(-50% - 5px)) rotate(-1deg); }
+  75%     { transform: translateX(calc(-50% + 3px)) rotate(0.5deg); }
+  90%     { transform: translateX(calc(-50% - 3px)) rotate(-0.5deg); }
+}
+
+/* かくてい！！ — 金ゴージャス、最大・最派手 */
+.cutinConfirmed {
+  background: linear-gradient(135deg, #b8860b, #ffd700, #fffacd, #ffd700, #b8860b);
+  background-size: 200% 200%;
+  color: #3a2000;
+  font-size: 2.1rem;
+  text-shadow: 0 1px 0 rgba(255, 255, 200, 0.8);
+  box-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.6),
+              inset 0 1px 0 rgba(255, 255, 200, 0.7);
+  border: 3px solid #fffacd;
+  animation: cutinSlideIn 0.38s cubic-bezier(0.17, 0.89, 0.32, 1.3) both,
+             cutinGoldShine 1s ease 0.3s 1,
+             cutinFadeOut 0.35s ease-in 1.05s both;
+}
+@keyframes cutinGoldShine {
+  0%   { background-position: 100% 0%;  transform: translateX(-50%) scale(1); }
+  40%  { background-position: 0% 100%;  transform: translateX(-50%) scale(1.12); }
+  70%  { background-position: 100% 50%; transform: translateX(-50%) scale(0.96); }
+  100% { background-position: 0% 0%;   transform: translateX(-50%) scale(1); }
+}
+
 /* ── Scenario reveal effects ────────────────── */
 
-/* burst (reversal): 白フラッシュ＋景品が弾ける */
+/* burst (reversal/guaranteed): ド派手ホワイトアウト2回＋集中線＋キラキラ */
 .revealFlash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0) 65%);
-  animation: flashFade 0.55s ease-out both;
+  background: radial-gradient(circle at center, rgba(255, 255, 230, 0.98) 0%, rgba(255, 240, 200, 0.4) 50%, transparent 75%);
+  animation: flashFade 0.9s ease-out both;
   pointer-events: none;
+  z-index: 5;
 }
 @keyframes flashFade {
-  0%   { opacity: 1; }
+  0%   { opacity: 0; }
+  6%   { opacity: 1; }
+  22%  { opacity: 0.15; }
+  38%  { opacity: 0.9; }
   100% { opacity: 0; }
 }
+
+/* 集中線 */
+.revealFlash::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: repeating-conic-gradient(
+    rgba(255, 230, 100, 0.55) 0deg 6deg,
+    transparent 6deg 18deg
+  );
+  animation: radialBeamSpin 1.2s ease-out both;
+  transform-origin: center;
+}
+@keyframes radialBeamSpin {
+  from { transform: scale(0.3) rotate(0deg);   opacity: 0; }
+  30%  { opacity: 1; }
+  to   { transform: scale(1.6) rotate(25deg); opacity: 0; }
+}
+
+/* キラキラ星（4つ） */
+.revealFlash::after {
+  content: "✦ ✦ ✦ ✦";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(255, 220, 50, 0.95);
+  letter-spacing: 1.5rem;
+  animation: starsBurst 0.9s ease-out 0.1s both;
+  pointer-events: none;
+}
+@keyframes starsBurst {
+  from { transform: scale(0.2); opacity: 0; }
+  45%  { transform: scale(1.4); opacity: 1; }
+  to   { transform: scale(2.2); opacity: 0; }
+}
+
 .revealBurst {
-  animation: revealBurstAnim 0.75s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+  animation: revealBurstAnim 0.8s cubic-bezier(0.17, 0.89, 0.32, 1.49);
 }
 @keyframes revealBurstAnim {
   0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
-  35%  { transform: scale(1.38) rotate(5deg); opacity: 1; }
-  60%  { transform: scale(0.88) rotate(-3deg); }
-  82%  { transform: scale(1.08) rotate(1deg); }
+  30%  { transform: scale(1.55) rotate(6deg); opacity: 1; }
+  55%  { transform: scale(0.88) rotate(-4deg); }
+  75%  { transform: scale(1.12) rotate(2deg); }
+  88%  { transform: scale(0.96) rotate(-1deg); }
   100% { transform: scale(1) rotate(0deg); }
-}
-
-/* cutin (guaranteed): 「かくてい！」帯スライドイン → 景品遅れて登場 */
-.revealCutin {
-  background: linear-gradient(135deg, #ffcc00, #ff6eb4);
-  color: #fff;
-  font-size: 1.4rem;
-  font-weight: bold;
-  padding: 12px 36px;
-  border-radius: 10px;
-  letter-spacing: 0.08em;
-  animation: cutinSlide 0.42s cubic-bezier(0.17, 0.89, 0.32, 1.3) both;
-  box-shadow: 0 4px 22px rgba(255, 110, 180, 0.55);
-}
-@keyframes cutinSlide {
-  from { transform: translateX(-110%); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
-}
-.revealCutinPrize {
-  animation: prizePopIn 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49) 0.35s both;
 }
 
 /* soft (fakeout): やさしくふわっと */

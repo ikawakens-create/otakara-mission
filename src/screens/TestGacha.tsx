@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Profile, Rarity } from "../types";
 import { RARITY_VISUALS, CAPSULE_CSS_COLORS } from "../data/gachaVisuals";
-import { type ScenarioId } from "../data/gachaScenarios";
+import { type ScenarioId, type CutinLevel } from "../data/gachaScenarios";
 import { getTodayKey } from "../lib/date";
 import GachaScreen from "./Gacha";
 import styles from "./TestGacha.module.css";
@@ -14,6 +14,15 @@ const RARITIES: Rarity[] = [
   "rainbow",
   "legend",
   "diamond",
+];
+
+const CUTINS: Array<{ id: CutinLevel | null; label: string }> = [
+  { id: null,        label: "🎲 ランダム" },
+  { id: "none",      label: "なし" },
+  { id: "oh",        label: "お！" },
+  { id: "maybe",     label: "もしかして？？" },
+  { id: "hot",       label: "激アツ！！" },
+  { id: "confirmed", label: "かくてい！！" },
 ];
 
 const SCENARIOS: Array<{ id: ScenarioId | null; label: string }> = [
@@ -32,6 +41,7 @@ interface Props {
 export default function TestGacha({ profile, onBack }: Props) {
   const [selectedRarity, setSelectedRarity] = useState<Rarity | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<ScenarioId | null>(null);
+  const [selectedCutin, setSelectedCutin] = useState<CutinLevel | null>(null);
   const [gachaOpen, setGachaOpen] = useState(false);
 
   function openGacha(rarity: Rarity | null) {
@@ -49,6 +59,7 @@ export default function TestGacha({ profile, onBack }: Props) {
         onClose={() => setGachaOpen(false)}
         forcedRarity={selectedRarity ?? undefined}
         forcedScenario={selectedScenario ?? undefined}
+        forcedCutin={selectedCutin ?? undefined}
         dryRun={true}
       />
     );
@@ -95,6 +106,22 @@ export default function TestGacha({ profile, onBack }: Props) {
                 (selectedScenario === id ? " " + styles.scenarioBtnActive : "")
               }
               onClick={() => setSelectedScenario(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <p className={styles.sectionLabel}>カットイン</p>
+        <div className={styles.scenarioGrid}>
+          {CUTINS.map(({ id, label }) => (
+            <button
+              key={id ?? "random-cutin"}
+              className={
+                styles.scenarioBtn +
+                (selectedCutin === id ? " " + styles.scenarioBtnActive : "")
+              }
+              onClick={() => setSelectedCutin(id)}
             >
               {label}
             </button>

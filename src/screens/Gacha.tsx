@@ -16,7 +16,10 @@ import {
   dropLookForScenario,
   SCENARIO_REVEAL,
   SCENARIO_REVEAL_TEXT,
+  pickCutin,
+  CUTIN_TEXT,
   type ScenarioId,
+  type CutinLevel,
 } from "../data/gachaScenarios";
 import GachaMachine from "../components/GachaMachine";
 import styles from "./Gacha.module.css";
@@ -42,6 +45,7 @@ interface Props {
   onClose: () => void;
   forcedRarity?: Rarity;
   forcedScenario?: ScenarioId;
+  forcedCutin?: CutinLevel;
   dryRun?: boolean;
 }
 
@@ -51,13 +55,15 @@ const REASON_LABEL: Record<PullReason, string> = {
   ticket:   "🎫 スペシャルけんガチャ！",
 };
 
-export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, forcedScenario, dryRun }: Props) {
+export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, forcedScenario, forcedCutin, dryRun }: Props) {
   const pullType: PullType = pullReason === "ticket" ? "ticket" : "daily";
 
   const [screenPhase, setScreenPhase] = useState<"intro" | "animating" | "result">("intro");
   const [animPhase, setAnimPhase] = useState<AnimPhase>("silhouette");
   const [result, setResult] = useState<GachaResult | null>(null);
   const [scenario, setScenario] = useState<ScenarioId>("standard");
+  const [cutin, setCutin] = useState<CutinLevel>("none");
+  const [cutinVisible, setCutinVisible] = useState(false);
 
   const handlePull = useCallback(() => {
     const rarity = forcedRarity ?? drawRarity();
@@ -67,7 +73,10 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
       const updated = applyGachaResult(profile, res, pullType, dateKey);
       onSave(updated);
     }
+    const cut = forcedCutin ?? pickCutin(rarity, sc);
     setScenario(sc);
+    setCutin(cut);
+    setCutinVisible(false);
     setResult(res);
     setScreenPhase("animating");
     setAnimPhase("silhouette");
@@ -86,13 +95,18 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
     if (idx < ANIM_PHASES.length - 1) {
       const next = ANIM_PHASES[idx + 1];
       if (next === "machine") soundMachine();
-      else if (next === "capsule") soundCapsule();
-      else if (next === "reveal") soundReveal(level);
+      else if (next === "capsule") {
+        soundCapsule();
+      } else if (next === "reveal") soundReveal(level);
       setAnimPhase(next);
+      if (next === "capsule" && cutin !== "none") {
+        setCutinVisible(true);
+        setTimeout(() => setCutinVisible(false), 1400);
+      }
     } else {
       setScreenPhase("result");
     }
-  }, [animPhase, result]);
+  }, [animPhase, result, cutin]);
 
   function renderIntro() {
     const ticketCount = profile.specialGachaTickets;
@@ -155,6 +169,21 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           </div>
         )}
 
+        {cutinVisible && cutin !== "none" && (
+          <div
+            className={[
+              styles.cutinBanner,
+              cutin === "oh"        ? styles.cutinOh        : "",
+              cutin === "maybe"     ? styles.cutinMaybe     : "",
+              cutin === "hot"       ? styles.cutinHot       : "",
+              cutin === "confirmed" ? styles.cutinConfirmed : "",
+            ].filter(Boolean).join(" ")}
+            aria-live="assertive"
+          >
+            {CUTIN_TEXT[cutin]}
+          </div>
+        )}
+
         {animPhase === "open" && (
           <div className={styles.sceneCenter}>
             <div
@@ -173,15 +202,11 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
 
         {animPhase === "reveal" && (
           <div className={styles.sceneCenter}>
-            {effect === "cutin" && (
-              <div className={styles.revealCutin} aria-hidden>✨ かくてい！✨</div>
-            )}
             <div
               className={[
                 styles.prizeReveal,
-                effect === "burst" ? styles.revealBurst     : "",
-                effect === "soft"  ? styles.revealSoft      : "",
-                effect === "cutin" ? styles.revealCutinPrize : "",
+                effect === "burst" ? styles.revealBurst : "",
+                effect === "soft"  ? styles.revealSoft  : "",
               ].filter(Boolean).join(" ")}
               style={filterStyle}
               aria-hidden
