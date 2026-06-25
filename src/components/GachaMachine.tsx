@@ -6,6 +6,7 @@ export interface GachaMachineProps {
   size?: number;
   className?: string;
   turning?: boolean;
+  turnHard?: boolean;
   dropCapsule?: "normal" | "gold" | "rainbow" | null;
   jiggle?: boolean;
 }
@@ -102,8 +103,8 @@ function fillCaps(colors: string[]): string {
   return out;
 }
 
-function buildHandleGroup(turning: boolean): string {
-  const cls = turning ? ' class="handleTurn"' : '';
+function buildHandleGroup(turning: boolean, turnHard: boolean): string {
+  const cls = turnHard ? ' class="handleSpinHard"' : (turning ? ' class="handleTurn"' : '');
   return `<g${cls}>
     <rect x="143" y="258" width="14" height="56" rx="7" fill="#ffcf3f" stroke="#e89a23" stroke-width="3"/>
     <rect x="122" y="279" width="56" height="14" rx="7" fill="#ffcf3f" stroke="#e89a23" stroke-width="3"/>
@@ -121,7 +122,7 @@ function buildDropCapsule(kind: "normal" | "gold" | "rainbow"): string {
   return `<g class="capDrop">${inner}</g>`;
 }
 
-export default function GachaMachine({ caps, level = 0, size = 260, className, turning = false, dropCapsule = null, jiggle = false }: GachaMachineProps) {
+export default function GachaMachine({ caps, level = 0, size = 260, className, turning = false, turnHard = false, dropCapsule = null, jiggle = false }: GachaMachineProps) {
   const colors = caps ?? presetForLevel(level);
   const capsHtml = fillCaps(colors);
   const svgHeight = Math.round(size * 380 / 300);
@@ -134,7 +135,7 @@ export default function GachaMachine({ caps, level = 0, size = 260, className, t
     <path d="M84 250 L216 250 Q224 250 222 262 L214 312 Q212 320 202 320 L98 320 Q88 320 86 312 L78 262 Q76 250 84 250 Z" fill="url(#body)" stroke="#e15691" stroke-width="3"/>
     <ellipse cx="150" cy="252" rx="66" ry="10" fill="url(#bodyTop)"/>
     <circle cx="150" cy="286" r="26" fill="#ffe089" stroke="#e89a23" stroke-width="3.5"/>
-    ${buildHandleGroup(turning)}
+    ${buildHandleGroup(turning, turnHard)}
     ${dropCapsule ? buildDropCapsule(dropCapsule) : ''}
     <circle cx="${BX}" cy="${BY}" r="${BR+5}" fill="url(#glass)" stroke="#ff9ec4" stroke-width="6"/>
     <clipPath id="ball"><circle cx="${BX}" cy="${BY}" r="${BR}"/></clipPath>
