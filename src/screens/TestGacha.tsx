@@ -42,6 +42,7 @@ export default function TestGacha({ profile, onBack }: Props) {
   const [selectedRarity, setSelectedRarity] = useState<Rarity | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<ScenarioId | null>(null);
   const [selectedCutin, setSelectedCutin] = useState<CutinLevel | null>(null);
+  const [forcedRetry, setForcedRetry] = useState(false);
   const [gachaOpen, setGachaOpen] = useState(false);
 
   function openGacha(rarity: Rarity | null) {
@@ -60,6 +61,7 @@ export default function TestGacha({ profile, onBack }: Props) {
         forcedRarity={selectedRarity ?? undefined}
         forcedScenario={selectedScenario ?? undefined}
         forcedCutin={selectedCutin ?? undefined}
+        forcedRetry={forcedRetry || undefined}
         dryRun={true}
       />
     );
@@ -110,6 +112,19 @@ export default function TestGacha({ profile, onBack }: Props) {
               {label}
             </button>
           ))}
+        </div>
+
+        <p className={styles.sectionLabel}>激アツ専用ビート</p>
+        <div className={styles.scenarioGrid}>
+          <button
+            className={
+              styles.scenarioBtn +
+              (forcedRetry ? " " + styles.scenarioBtnActive : "")
+            }
+            onClick={() => setForcedRetry((v) => !v)}
+          >
+            🔥 でてこない演出
+          </button>
         </div>
 
         <p className={styles.sectionLabel}>カットイン</p>
