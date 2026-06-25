@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { Profile, Rarity } from "../types";
 import {
   drawRarity,
@@ -27,6 +27,8 @@ import styles from "./Gacha.module.css";
 type AnimPhase = "silhouette" | "machine" | "capsule" | "open" | "reveal";
 const ANIM_PHASES: AnimPhase[] = ["silhouette", "machine", "capsule", "open", "reveal"];
 
+type RetryStage = "none" | "shaking" | "again" | "drop";
+
 const PHASE_PROMPT: Record<AnimPhase, string> = {
   silhouette: "？ なにが でるかな？",
   machine:    "ハンドルを まわそう！",
@@ -34,6 +36,9 @@ const PHASE_PROMPT: Record<AnimPhase, string> = {
   open:       "ぱかっ…！",
   reveal:     "やったー！",
 };
+
+const RETRY_HINT_SHAKING = "あれ…？ でてこない！？";
+const RETRY_HINT_AGAIN   = "もう1回！";
 
 export type PullReason = "complete" | "recovery" | "ticket";
 
@@ -46,6 +51,7 @@ interface Props {
   forcedRarity?: Rarity;
   forcedScenario?: ScenarioId;
   forcedCutin?: CutinLevel;
+  forcedRetry?: boolean;
   dryRun?: boolean;
 }
 
@@ -55,7 +61,7 @@ const REASON_LABEL: Record<PullReason, string> = {
   ticket:   "🎫 スペシャルけんガチャ！",
 };
 
-export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, forcedScenario, forcedCutin, dryRun }: Props) {
+export default function GachaScreen({ profile, pullReason, dateKey, onSave, onClose, forcedRarity, forcedScenario, forcedCutin, forcedRetry, dryRun }: Props) {
   const pullType: PullType = pullReason === "ticket" ? "ticket" : "daily";
 
   const [screenPhase, setScreenPhase] = useState<"intro" | "animating" | "result">("intro");
@@ -64,6 +70,22 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
   const [scenario, setScenario] = useState<ScenarioId>("standard");
   const [cutin, setCutin] = useState<CutinLevel>("none");
   const [cutinVisible, setCutinVisible] = useState(false);
+  const [isRetry, setIsRetry] = useState(false);
+  const [retryStage, setRetryStage] = useState<RetryStage>("none");
+
+  // タイマーをまとめて管理（スキップ時に全クリア）
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  function scheduleTimer(fn: () => void, ms: number) {
+    const id = setTimeout(fn, ms);
+    timersRef.current.push(id);
+    return id;
+  }
+
+  function clearAllTimers() {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }
 
   const handlePull = useCallback(() => {
     const rarity = forcedRarity ?? drawRarity();
@@ -74,17 +96,40 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
       onSave(updated);
     }
     const cut = forcedCutin ?? pickCutin(rarity, sc);
+    const retry = forcedRetry ?? (cut === "confirmed");
     setScenario(sc);
     setCutin(cut);
     setCutinVisible(false);
+    setIsRetry(retry);
+    setRetryStage("none");
     setResult(res);
     setScreenPhase("animating");
     setAnimPhase("silhouette");
     soundPull();
     if (navigator.vibrate) navigator.vibrate(60);
-  }, [profile, pullType, dateKey, onSave, forcedRarity, forcedScenario, dryRun]);
+  }, [profile, pullType, dateKey, onSave, forcedRarity, forcedScenario, forcedCutin, forcedRetry, dryRun]);
+
+  // retry 自動進行：capsule フェーズに入ったら shaking→again→drop
+  useEffect(() => {
+    if (animPhase !== "capsule" || !isRetry) return;
+    setRetryStage("shaking");
+    const t1 = scheduleTimer(() => {
+      setRetryStage("again");
+      const t2 = scheduleTimer(() => {
+        setRetryStage("drop");
+        setCutinVisible(true);
+        const t3 = scheduleTimer(() => setCutinVisible(false), 1400);
+        timersRef.current.push(t3);
+      }, 900);
+      timersRef.current.push(t2);
+    }, 1100);
+    timersRef.current.push(t1);
+    return () => clearAllTimers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animPhase, isRetry]);
 
   const skipToResult = useCallback(() => {
+    clearAllTimers();
     setScreenPhase("result");
   }, []);
 
@@ -95,18 +140,19 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
     if (idx < ANIM_PHASES.length - 1) {
       const next = ANIM_PHASES[idx + 1];
       if (next === "machine") soundMachine();
-      else if (next === "capsule") {
-        soundCapsule();
-      } else if (next === "reveal") soundReveal(level);
+      else if (next === "capsule") soundCapsule();
+      else if (next === "reveal") soundReveal(level);
       setAnimPhase(next);
-      if (next === "capsule" && cutin !== "none") {
+      // 非retry時のカットイン：capsule 入場時に表示
+      if (next === "capsule" && !isRetry && cutin !== "none") {
         setCutinVisible(true);
-        setTimeout(() => setCutinVisible(false), 1400);
+        scheduleTimer(() => setCutinVisible(false), 1400);
       }
+      // retry時は capsule useEffect が担当するので何もしない
     } else {
       setScreenPhase("result");
     }
-  }, [animPhase, result, cutin]);
+  }, [animPhase, result, cutin, isRetry]);
 
   function renderIntro() {
     const ticketCount = profile.specialGachaTickets;
@@ -143,6 +189,20 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
 
     const tapLabel = animPhase === "reveal" ? "タップで けっかを みる ▶" : "タップで つぎへ ▶";
 
+    // capsule フェーズの表示パラメータ
+    const isCapsulePhase = animPhase === "machine" || animPhase === "capsule";
+    const capsuleTurning = animPhase === "capsule"
+      ? (isRetry ? retryStage !== "drop" : true)
+      : false;
+    const capsuleDropping = animPhase === "capsule" && (!isRetry || retryStage === "drop")
+      ? dropLookForScenario(scenario, visual.capsule)
+      : null;
+    const capsuleHint = animPhase === "capsule" && isRetry
+      ? (retryStage === "shaking" ? RETRY_HINT_SHAKING
+       : retryStage === "again"   ? RETRY_HINT_AGAIN
+       : PHASE_PROMPT.capsule)
+      : PHASE_PROMPT[animPhase];
+
     return (
       <div className={styles.sceneWrap} onClick={advancePhase} role="button" aria-label="つぎへ">
         {animPhase === "silhouette" && (
@@ -154,18 +214,18 @@ export default function GachaScreen({ profile, pullReason, dateKey, onSave, onCl
           </div>
         )}
 
-        {(animPhase === "machine" || animPhase === "capsule") && (
+        {isCapsulePhase && (
           <div className={styles.sceneCenter}>
             <GachaMachine
               level={visual.level}
               size={260}
               caps={capsForLook(SCENARIO_BUILDUP[scenario], visual.level)}
               className={animPhase === "machine" ? styles.machineAppear : undefined}
-              turning={animPhase === "capsule"}
-              dropCapsule={animPhase === "capsule" ? dropLookForScenario(scenario, visual.capsule) : null}
-              jiggle={animPhase === "capsule"}
+              turning={capsuleTurning}
+              dropCapsule={capsuleDropping}
+              jiggle={animPhase === "capsule" && (!isRetry || retryStage === "drop")}
             />
-            <p className={styles.sceneHint}>{PHASE_PROMPT[animPhase]}</p>
+            <p className={styles.sceneHint}>{capsuleHint}</p>
           </div>
         )}
 
