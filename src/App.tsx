@@ -6,10 +6,11 @@ import Home from "./screens/Home";
 import ParentSettings from "./screens/ParentSettings";
 import TestGacha from "./screens/TestGacha";
 import Dressup from "./screens/Dressup";
+import AvatarAdjust from "./screens/AvatarAdjust";
 import PinPad from "./components/PinPad";
 import "./styles/global.css";
 
-type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha" | "avatar";
+type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha" | "avatar" | "avatarAdjust";
 
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
@@ -53,6 +54,10 @@ export default function App() {
     setScreen("avatar");
   }, []);
 
+  const handleOpenAvatarAdjust = useCallback(() => {
+    setScreen("avatarAdjust");
+  }, []);
+
   const handlePinVerified = useCallback(() => {
     setScreen("parentSettings");
   }, []);
@@ -76,8 +81,13 @@ export default function App() {
         onUpdate={handleUpdate}
         onBack={() => setScreen("home")}
         onOpenTestGacha={handleOpenTestGacha}
+        onOpenAvatarAdjust={handleOpenAvatarAdjust}
       />
     );
+  }
+
+  if (screen === "avatarAdjust") {
+    return <AvatarAdjust onBack={() => setScreen("parentSettings")} />;
   }
 
   if (screen === "testGacha") {

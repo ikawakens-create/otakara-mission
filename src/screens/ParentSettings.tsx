@@ -8,9 +8,10 @@ interface Props {
   onUpdate: (d: SaveData) => void;
   onBack: () => void;
   onOpenTestGacha: () => void;
+  onOpenAvatarAdjust: () => void;
 }
 
-export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestGacha }: Props) {
+export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestGacha, onOpenAvatarAdjust }: Props) {
   const { settings } = saveData;
   const [addEmoji, setAddEmoji] = useState("📝");
   const [addLabel, setAddLabel] = useState("");
@@ -146,6 +147,15 @@ export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestG
             </div>
             <button className={styles.changePinBtn} onClick={onOpenTestGacha}>
               🎬 演出をテスト
+            </button>
+          </div>
+          <div className={styles.settingRow}>
+            <div>
+              <div className={styles.settingLabel}>アバターのいちちょうせい</div>
+              <div className={styles.settingHint}>素材の位置・サイズを確認してスニペットを取得できます</div>
+            </div>
+            <button className={styles.changePinBtn} onClick={onOpenAvatarAdjust}>
+              🎯 ちょうせいする
             </button>
           </div>
         </div>
