@@ -5,10 +5,11 @@ import ProfileSelect from "./screens/ProfileSelect";
 import Home from "./screens/Home";
 import ParentSettings from "./screens/ParentSettings";
 import TestGacha from "./screens/TestGacha";
+import Dressup from "./screens/Dressup";
 import PinPad from "./components/PinPad";
 import "./styles/global.css";
 
-type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha";
+type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha" | "avatar";
 
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
@@ -48,6 +49,10 @@ export default function App() {
     setScreen("testGacha");
   }, []);
 
+  const handleOpenAvatar = useCallback(() => {
+    setScreen("avatar");
+  }, []);
+
   const handlePinVerified = useCallback(() => {
     setScreen("parentSettings");
   }, []);
@@ -85,6 +90,19 @@ export default function App() {
     );
   }
 
+  if (screen === "avatar") {
+    const ap = saveData.profiles.find((p) => p.id === saveData.activeProfileId) ?? saveData.profiles[0];
+    return (
+      <Dressup
+        profile={ap}
+        onUpdateProfile={(up) =>
+          handleUpdate({ ...saveData, profiles: saveData.profiles.map((p) => (p.id === up.id ? up : p)) })
+        }
+        onBack={() => setScreen("home")}
+      />
+    );
+  }
+
   return (
     <>
       <Home
@@ -92,6 +110,7 @@ export default function App() {
         onUpdate={handleUpdate}
         onSwitchProfile={() => setScreen("profileSelect")}
         onOpenParentSettings={handleOpenParentSettings}
+        onOpenAvatar={handleOpenAvatar}
       />
       {screen === "pinGate" && (
         <PinPad

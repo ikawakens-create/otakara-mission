@@ -57,6 +57,18 @@
   flex: 1;
 }
 
+.dressupBtn {
+  font-size: 0.8rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  min-height: 36px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .profileName {
   font-size: 1.25rem;
   font-weight: bold;

@@ -1,0 +1,25 @@
+.circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.avatarWrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
