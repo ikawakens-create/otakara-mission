@@ -7,6 +7,7 @@ import { canPullOnDate, findPendingRecoveryDate, canPullTicket } from "../lib/ga
 import MissionCard from "../components/MissionCard";
 import StampPalette from "../components/StampPalette";
 import TabBar, { type HomeTab } from "../components/TabBar";
+import AvatarThumb from "../components/AvatarThumb";
 import WeekView from "./WeekView";
 import MonthView from "./MonthView";
 import GachaScreen, { type PullReason } from "./Gacha";
@@ -22,9 +23,10 @@ interface Props {
   onUpdate: (updated: SaveData) => void;
   onSwitchProfile: () => void;
   onOpenParentSettings: () => void;
+  onOpenAvatar: () => void;
 }
 
-export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParentSettings }: Props) {
+export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParentSettings, onOpenAvatar }: Props) {
   const [paletteForMissionId, setPaletteForMissionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<HomeTab>("today");
   const [gachaState, setGachaState] = useState<{
@@ -174,13 +176,19 @@ export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParent
         </div>
 
         <div className={styles.profileRow}>
-          <div className={styles.avatarCircle}>
-            {AVATAR_EMOJI[currentProfile.id] ?? "👧"}
-          </div>
+          <AvatarThumb
+            config={currentProfile.avatar}
+            ownedIds={currentProfile.ownedItemIds}
+            fallbackEmoji={AVATAR_EMOJI[currentProfile.id] ?? "👧"}
+            onClick={onOpenAvatar}
+          />
           <div className={styles.profileInfo}>
             <div className={styles.profileName}>{currentProfile.name}</div>
             <div className={styles.dateText}>{formatDateJa(today)}</div>
           </div>
+          <button className={styles.dressupBtn} onClick={onOpenAvatar} type="button">
+            👗 きせかえ
+          </button>
         </div>
 
         <div className={styles.statsRow}>

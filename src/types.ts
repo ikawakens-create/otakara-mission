@@ -46,13 +46,37 @@ export interface ItemDef {
   starter?: boolean;
 }
 
+export type AvatarCategory =
+  | "outfit"
+  | "hair"
+  | "hat"
+  | "accessory"
+  | "pet"
+  | "background"
+  | "special";
+
+export interface AvatarAsset {
+  id: string;
+  category: AvatarCategory;
+  owner: "sister" | "younger" | "both";
+  label: string;
+  imagePath: string;
+  thumbPath: string;
+  rarity?: Rarity;
+  offsetX?: number;
+  offsetY?: number;
+  scale?: number;
+  starter?: boolean;
+}
+
 export interface AvatarConfig {
-  hair?: string;
-  clothes?: string;
-  hat?: string;
-  accessory?: string;
-  background?: string;
-  pet?: string;
+  outfitId: string;
+  hairId: string;
+  hatId?: string;
+  accessoryId?: string;
+  petId?: string;
+  backgroundId?: string;
+  specialId?: string;
 }
 
 export interface DailyRecord {
