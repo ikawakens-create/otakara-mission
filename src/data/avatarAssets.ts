@@ -25,6 +25,7 @@ function a(
     offsetX?: number;
     offsetY?: number;
     scale?: number;
+    hooded?: boolean;
   } = {}
 ): AvatarAsset {
   return {
@@ -47,6 +48,13 @@ export const AVATAR_ASSETS: AvatarAsset[] = [
   a("out_sister_sailor", "outfit", "sister", "セーラーふく", { rarity: "normal", starter: true }),
   a("out_sister_lavender", "outfit", "sister", "ラベンダー", { rarity: "rare" }),
   a("hair_sister_midi", "hair", "sister", "ミディアム", { rarity: "normal", starter: true }),
+  // ---- 姉（sister）追加分 ----
+  a("out_sister_hoodie", "outfit", "sister", "グレーパーカー", { rarity: "normal" }),
+  a("out_sister_princess", "outfit", "sister", "おひめさまドレス", { rarity: "ultra_rare" }),
+  a("out_sister_cat", "outfit", "sister", "ねこパーカー", { rarity: "rare", hooded: true }),
+  a("hair_sister_twin", "hair", "sister", "ツインテール", { rarity: "rare" }),
+  a("hair_sister_blackbob", "hair", "sister", "くろボブ", { rarity: "normal" }),
+  a("hair_sister_braid", "hair", "sister", "みずいろみつあみ", { rarity: "rare" }),
   // ---- 共通（both）----
   a("hat_both_ribbon", "hat", "both", "リボン", { rarity: "normal" }),
   a("acc_both_star", "accessory", "both", "ほしのアクセ", { rarity: "normal" }),

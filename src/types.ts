@@ -66,6 +66,7 @@ export interface AvatarAsset {
   offsetX?: number;
   offsetY?: number;
   scale?: number;
+  hooded?: boolean;
   starter?: boolean;
 }
 
