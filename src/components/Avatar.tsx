@@ -45,9 +45,13 @@ export default function Avatar({ config, ownedIds }: Props) {
       {special ? (
         <Layer id={special.id} />
       ) : (
-        LAYERS.map(({ key }) => (
-          <Layer key={key} id={config[key] as string | undefined} />
-        ))
+        (() => {
+          const hideHair = !!avatarAsset(config.outfitId)?.hooded;
+          return LAYERS.map(({ key }) => {
+            if (key === "hairId" && hideHair) return null;
+            return <Layer key={key} id={config[key] as string | undefined} />;
+          });
+        })()
       )}
     </div>
   );
