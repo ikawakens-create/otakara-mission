@@ -1,11 +1,12 @@
-import type { SaveData, Profile, AppSettings, RecoveryMissionDef } from "../types";
+import type { SaveData, Profile, AppSettings, RecoveryMissionDef, AvatarConfig } from "../types";
 import { DEFAULT_MISSIONS } from "../data/missions";
 import { STAMPS } from "../data/stamps";
 import { ITEMS } from "../data/items";
+import { starterAssetIds, starterOutfitId, starterHairId } from "../data/avatarAssets";
 import { getTodayKey, getWeekStartDate } from "./date";
 
 const STORAGE_KEY = "otakara_mission_v1";
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 3;
 
 export const DEFAULT_RECOVERY_MISSIONS: RecoveryMissionDef[] = [
   { id: "rec_read_book", emoji: "📖", label: "えほんを 1さつ よむ" },
@@ -17,15 +18,19 @@ export const DEFAULT_RECOVERY_MISSIONS: RecoveryMissionDef[] = [
 function buildDefaultProfile(id: string, name: string): Profile {
   const starterStampIds = STAMPS.filter((s) => s.starter).map((s) => s.id);
   const starterItemIds = ITEMS.filter((i) => i.starter).map((i) => i.id);
+  const starterAvatarIds = starterAssetIds(id);
   return {
     id,
     name,
-    avatar: {},
+    avatar: {
+      outfitId: starterOutfitId(id) ?? "",
+      hairId: starterHairId(id) ?? "",
+    },
     missions: [...DEFAULT_MISSIONS],
     points: { total: 0, thisWeek: 0 },
     kakera: 0,
     ownedStampIds: starterStampIds,
-    ownedItemIds: starterItemIds,
+    ownedItemIds: [...starterItemIds, ...starterAvatarIds],
     dailyRecords: {},
     weekState: {
       weekStartDate: getWeekStartDate(getTodayKey()),
@@ -103,6 +108,28 @@ function migrate(raw: any): SaveData {
       })),
     };
     data.schemaVersion = 2;
+  }
+
+  if ((data.schemaVersion ?? 0) < 3) {
+    // v2 → v3: starterアバターidを加算、avatar装備にstarterをセット
+    data = {
+      ...data,
+      profiles: data.profiles.map((p) => {
+        const starters = starterAssetIds(p.id);
+        const owned = Array.from(new Set([...(p.ownedItemIds ?? []), ...starters]));
+        const prev = (p.avatar ?? {}) as Partial<AvatarConfig>;
+        return {
+          ...p,
+          ownedItemIds: owned,
+          avatar: {
+            ...prev,
+            outfitId: prev.outfitId ?? starterOutfitId(p.id) ?? "",
+            hairId: prev.hairId ?? starterHairId(p.id) ?? "",
+          },
+        };
+      }),
+    };
+    data.schemaVersion = 3;
   }
 
   return data;
