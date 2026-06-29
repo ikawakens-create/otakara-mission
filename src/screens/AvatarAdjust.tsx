@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { AvatarCategory } from "../types";
-import { AVATAR_ASSETS, resolveAvatarUrl } from "../data/avatarAssets";
+import type { AvatarCategory, AvatarConfig } from "../types";
+import { AVATAR_ASSETS, starterOutfitId, starterHairId } from "../data/avatarAssets";
 import { RARITY_VISUALS } from "../data/gachaVisuals";
+import Avatar from "../components/Avatar";
 import styles from "./AvatarAdjust.module.css";
 
 type Owner = "sister" | "younger";
@@ -41,11 +42,26 @@ export default function AvatarAdjust({ onBack }: Props) {
   );
 
   const selectedAsset = assets.find((a) => a.id === selectedId);
-  const imageUrl = selectedAsset
-    ? resolveAvatarUrl(selectedAsset.imagePath)
-    : undefined;
 
-  const t = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  const profileId = owner;
+  const cfg: AvatarConfig | undefined = selectedAsset
+    ? (() => {
+        const c: AvatarConfig = {
+          outfitId: starterOutfitId(profileId) ?? "",
+          hairId: starterHairId(profileId) ?? "",
+        };
+        switch (selectedAsset.category) {
+          case "outfit":     c.outfitId = selectedAsset.id; break;
+          case "hair":       c.hairId = selectedAsset.id; break;
+          case "hat":        c.hatId = selectedAsset.id; break;
+          case "accessory":  c.accessoryId = selectedAsset.id; break;
+          case "pet":        c.petId = selectedAsset.id; break;
+          case "background": c.backgroundId = selectedAsset.id; break;
+          case "special":    c.specialId = selectedAsset.id; break;
+        }
+        return c;
+      })()
+    : undefined;
 
   const snippet = selectedId
     ? `// ${selectedId} の調整値\noffsetX: ${offsetX}, offsetY: ${offsetY}, scale: ${scale.toFixed(2)}`
@@ -152,33 +168,16 @@ export default function AvatarAdjust({ onBack }: Props) {
         </div>
 
         {/* プレビュー */}
-        {selectedAsset && (
+        {selectedAsset && cfg && (
           <>
             <div className={styles.section}>
               <div className={styles.sectionTitle}>プレビュー</div>
               <div className={styles.previewFrame}>
-                {imageUrl ? (
-                  <img
-                    className={styles.previewImg}
-                    src={imageUrl}
-                    alt={selectedAsset.label}
-                    style={{ transform: t }}
-                  />
-                ) : (
-                  <div
-                    className={styles.previewPlaceholder}
-                    style={{
-                      borderColor: selectedAsset.rarity
-                        ? RARITY_VISUALS[selectedAsset.rarity].glowColor
-                        : "#ddd",
-                      transform: t,
-                    }}
-                  >
-                    {selectedAsset.label}
-                    <br />
-                    （画像未生成）
-                  </div>
-                )}
+                <Avatar
+                  config={cfg}
+                  ownedIds={[cfg.outfitId, cfg.hairId, selectedAsset.id].filter(Boolean)}
+                  liveOverride={{ id: selectedAsset.id, offsetX, offsetY, scale }}
+                />
               </div>
             </div>
 

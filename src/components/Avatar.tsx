@@ -12,12 +12,20 @@ const LAYERS: { key: keyof AvatarConfig }[] = [
   { key: "petId" },
 ];
 
-function Layer({ id }: { id?: string }) {
+interface LiveOverride {
+  id: string;
+  offsetX: number;
+  offsetY: number;
+  scale: number;
+}
+
+function Layer({ id, liveOverride }: { id?: string; liveOverride?: LiveOverride }) {
   if (!id) return null;
   const asset = avatarAsset(id);
   if (!asset) return null;
   const url = resolveAvatarUrl(asset.imagePath);
-  const t = `translate(${asset.offsetX ?? 0}px, ${asset.offsetY ?? 0}px) scale(${asset.scale ?? 1})`;
+  const live = liveOverride?.id === id ? liveOverride : undefined;
+  const t = `translate(${live?.offsetX ?? asset.offsetX ?? 0}px, ${live?.offsetY ?? asset.offsetY ?? 0}px) scale(${live?.scale ?? asset.scale ?? 1})`;
   if (url) {
     return <img className={styles.layer} src={url} alt="" style={{ transform: t }} />;
   }
@@ -32,9 +40,10 @@ function Layer({ id }: { id?: string }) {
 interface Props {
   config: AvatarConfig;
   ownedIds: string[];
+  liveOverride?: LiveOverride;
 }
 
-export default function Avatar({ config, ownedIds }: Props) {
+export default function Avatar({ config, ownedIds, liveOverride }: Props) {
   const special =
     config.specialId && ownedIds.includes(config.specialId)
       ? avatarAsset(config.specialId)
@@ -43,13 +52,13 @@ export default function Avatar({ config, ownedIds }: Props) {
   return (
     <div className={styles.frame}>
       {special ? (
-        <Layer id={special.id} />
+        <Layer id={special.id} liveOverride={liveOverride} />
       ) : (
         (() => {
           const hideHair = !!avatarAsset(config.outfitId)?.hooded;
           return LAYERS.map(({ key }) => {
             if (key === "hairId" && hideHair) return null;
-            return <Layer key={key} id={config[key] as string | undefined} />;
+            return <Layer key={key} id={config[key] as string | undefined} liveOverride={liveOverride} />;
           });
         })()
       )}
