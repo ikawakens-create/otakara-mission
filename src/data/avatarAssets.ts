@@ -57,6 +57,11 @@ export const AVATAR_ASSETS: AvatarAsset[] = [
   a("hair_sister_braid", "hair", "sister", "みずいろみつあみ", { rarity: "rare" }),
   // ---- 共通（both）----
   a("hat_both_ribbon", "hat", "both", "リボン", { rarity: "normal" }),
+  a("hat_both_santa", "hat", "both", "サンタぼうし", { rarity: "rare" }),
+  a("hat_both_crown", "hat", "both", "おうかん", { rarity: "ultra_rare" }),
+  a("hat_both_witch", "hat", "both", "まじょのぼうし", { rarity: "rare" }),
+  a("hat_both_cap", "hat", "both", "キャップ", { rarity: "normal" }),
+  a("hat_both_catears", "hat", "both", "ねこみみ", { rarity: "normal" }),
   a("acc_both_star", "accessory", "both", "ほしのアクセ", { rarity: "normal" }),
   a("pet_both_cat", "pet", "both", "ねこ", { rarity: "rare" }),
   a("bg_both_sky", "background", "both", "あおぞら", { rarity: "normal" }),
