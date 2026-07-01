@@ -220,3 +220,124 @@
   font-size: 0.85rem;
   min-height: 40px;
 }
+
+.backupHint {
+  font-size: 13px;
+  color: #7a6a5a;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.backupButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.backupBtn {
+  min-height: 56px;
+  border: none;
+  border-radius: 14px;
+  background: #ffd86b;
+  color: #6b4a12;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.backupBtn:active { transform: scale(0.98); }
+.backupError {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #ffe0e0;
+  color: #b23a3a;
+  font-size: 14px;
+  font-weight: 700;
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+.dialog {
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px 20px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+.dialogTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #5a4a3a;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.previewList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.previewRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff7e6;
+}
+.previewName {
+  font-size: 16px;
+  font-weight: 800;
+  color: #5a4a3a;
+  margin-right: 4px;
+}
+.previewStat {
+  font-size: 13px;
+  color: #7a6a5a;
+}
+.warnText {
+  font-size: 13px;
+  color: #b23a3a;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.dialogButtons {
+  display: flex;
+  gap: 12px;
+}
+.cancelBtn,
+.dangerBtn {
+  flex: 1;
+  min-height: 52px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.cancelBtn { background: #eee; color: #666; }
+.dangerBtn { background: #ff6b6b; color: #fff; }
+.cancelBtn:active,
+.dangerBtn:active { transform: scale(0.98); }
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  z-index: 1100;
+}
