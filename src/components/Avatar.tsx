@@ -6,6 +6,7 @@ import styles from "./Avatar.module.css";
 const LAYERS: { key: keyof AvatarConfig }[] = [
   { key: "backgroundId" },
   { key: "outfitId" },
+  { key: "faceId" },
   { key: "hairId" },
   { key: "hatId" },
   { key: "accessoryId" },

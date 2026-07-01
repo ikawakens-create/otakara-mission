@@ -2,11 +2,11 @@ import type { SaveData, Profile, AppSettings, RecoveryMissionDef, AvatarConfig }
 import { DEFAULT_MISSIONS } from "../data/missions";
 import { STAMPS } from "../data/stamps";
 import { ITEMS } from "../data/items";
-import { starterAssetIds, starterOutfitId, starterHairId } from "../data/avatarAssets";
+import { starterAssetIds, starterOutfitId, starterHairId, starterFaceId } from "../data/avatarAssets";
 import { getTodayKey, getWeekStartDate } from "./date";
 
 const STORAGE_KEY = "otakara_mission_v1";
-const CURRENT_SCHEMA_VERSION = 3;
+const CURRENT_SCHEMA_VERSION = 4;
 
 export const DEFAULT_RECOVERY_MISSIONS: RecoveryMissionDef[] = [
   { id: "rec_read_book", emoji: "📖", label: "えほんを 1さつ よむ" },
@@ -25,6 +25,7 @@ function buildDefaultProfile(id: string, name: string): Profile {
     avatar: {
       outfitId: starterOutfitId(id) ?? "",
       hairId: starterHairId(id) ?? "",
+      faceId: starterFaceId(id) ?? "",
     },
     missions: [...DEFAULT_MISSIONS],
     points: { total: 0, thisWeek: 0 },
@@ -125,11 +126,29 @@ function migrate(raw: any): SaveData {
             ...prev,
             outfitId: prev.outfitId ?? starterOutfitId(p.id) ?? "",
             hairId: prev.hairId ?? starterHairId(p.id) ?? "",
+            faceId: prev.faceId ?? starterFaceId(p.id) ?? "",
           },
         };
       }),
     };
     data.schemaVersion = 3;
+  }
+
+  if ((data.schemaVersion ?? 0) < 4) {
+    // v3 → v4: 顔レイヤー追加。starterFaceIdを加算し、avatarにfaceIdをセット
+    data = {
+      ...data,
+      profiles: data.profiles.map((p) => {
+        const owned = Array.from(new Set([...(p.ownedItemIds ?? []), ...starterAssetIds(p.id)]));
+        const prev = (p.avatar ?? {}) as Partial<AvatarConfig>;
+        return {
+          ...p,
+          ownedItemIds: owned,
+          avatar: { ...prev, faceId: prev.faceId ?? starterFaceId(p.id) ?? "" } as AvatarConfig,
+        };
+      }),
+    };
+    data.schemaVersion = 4;
   }
 
   return data;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { AvatarCategory, AvatarConfig } from "../types";
-import { AVATAR_ASSETS, starterOutfitId, starterHairId } from "../data/avatarAssets";
+import { AVATAR_ASSETS, starterOutfitId, starterHairId, starterFaceId } from "../data/avatarAssets";
 import { RARITY_VISUALS } from "../data/gachaVisuals";
 import Avatar from "../components/Avatar";
 import styles from "./AvatarAdjust.module.css";
@@ -15,6 +15,7 @@ const OWNER_LABELS: Record<Owner, string> = {
 const CATEGORY_LABELS: Record<AvatarCategory, string> = {
   outfit: "ふく",
   hair: "かみ",
+  face: "かお",
   hat: "ぼうし",
   accessory: "こもの",
   pet: "ペット",
@@ -22,7 +23,7 @@ const CATEGORY_LABELS: Record<AvatarCategory, string> = {
   special: "とくべつ",
 };
 
-const CATEGORIES: AvatarCategory[] = ["outfit", "hair", "hat", "accessory", "pet", "background", "special"];
+const CATEGORIES: AvatarCategory[] = ["outfit", "hair", "face", "hat", "accessory", "pet", "background", "special"];
 
 interface Props {
   onBack: () => void;
@@ -49,10 +50,12 @@ export default function AvatarAdjust({ onBack }: Props) {
         const c: AvatarConfig = {
           outfitId: starterOutfitId(profileId) ?? "",
           hairId: starterHairId(profileId) ?? "",
+          faceId: starterFaceId(profileId) ?? "",
         };
         switch (selectedAsset.category) {
           case "outfit":     c.outfitId = selectedAsset.id; break;
           case "hair":       c.hairId = selectedAsset.id; break;
+          case "face":       c.faceId = selectedAsset.id; break;
           case "hat":        c.hatId = selectedAsset.id; break;
           case "accessory":  c.accessoryId = selectedAsset.id; break;
           case "pet":        c.petId = selectedAsset.id; break;
@@ -175,7 +178,7 @@ export default function AvatarAdjust({ onBack }: Props) {
               <div className={styles.previewFrame}>
                 <Avatar
                   config={cfg}
-                  ownedIds={[cfg.outfitId, cfg.hairId, selectedAsset.id].filter(Boolean)}
+                  ownedIds={[cfg.outfitId, cfg.hairId, cfg.faceId, selectedAsset.id].filter(Boolean)}
                   liveOverride={{ id: selectedAsset.id, offsetX, offsetY, scale }}
                 />
               </div>

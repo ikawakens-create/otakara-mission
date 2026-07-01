@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Profile, AvatarCategory, AvatarConfig } from "../types";
-import { assetsForOwner, resolveAvatarUrl } from "../data/avatarAssets";
+import { assetsInCategory, resolveAvatarUrl } from "../data/avatarAssets";
 import { RARITY_VISUALS } from "../data/gachaVisuals";
 import Avatar from "../components/Avatar";
 import styles from "./Dressup.module.css";
@@ -8,6 +8,7 @@ import styles from "./Dressup.module.css";
 const CATEGORY_TABS: { key: AvatarCategory; label: string }[] = [
   { key: "outfit", label: "ふく" },
   { key: "hair", label: "かみ" },
+  { key: "face", label: "かお" },
   { key: "hat", label: "ぼうし" },
   { key: "accessory", label: "こもの" },
   { key: "pet", label: "ペット" },
@@ -15,7 +16,7 @@ const CATEGORY_TABS: { key: AvatarCategory; label: string }[] = [
   { key: "special", label: "とくべつ" },
 ];
 
-const REQUIRED_CATEGORIES: AvatarCategory[] = ["outfit", "hair"];
+const REQUIRED_CATEGORIES: AvatarCategory[] = ["outfit", "hair", "face"];
 
 interface Props {
   profile: Profile;
@@ -37,6 +38,9 @@ export default function Dressup({ profile, onUpdateProfile, onBack }: Props) {
         break;
       case "hair":
         next.hairId = id!;
+        break;
+      case "face":
+        next.faceId = id!;
         break;
       case "hat":
         next.hatId = id;
@@ -68,6 +72,7 @@ export default function Dressup({ profile, onUpdateProfile, onBack }: Props) {
     switch (category) {
       case "outfit": return config.outfitId;
       case "hair": return config.hairId;
+      case "face": return config.faceId;
       case "hat": return config.hatId;
       case "accessory": return config.accessoryId;
       case "pet": return config.petId;
@@ -76,7 +81,7 @@ export default function Dressup({ profile, onUpdateProfile, onBack }: Props) {
     }
   }
 
-  const allCategoryAssets = assetsForOwner(profile.id, activeCategory);
+  const allCategoryAssets = assetsInCategory(activeCategory);
   const isRequired = REQUIRED_CATEGORIES.includes(activeCategory);
   const equippedId = currentEquippedId(activeCategory);
 

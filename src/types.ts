@@ -49,6 +49,7 @@ export interface ItemDef {
 export type AvatarCategory =
   | "outfit"
   | "hair"
+  | "face"
   | "hat"
   | "accessory"
   | "pet"
@@ -73,6 +74,7 @@ export interface AvatarAsset {
 export interface AvatarConfig {
   outfitId: string;
   hairId: string;
+  faceId: string;
   hatId?: string;
   accessoryId?: string;
   petId?: string;

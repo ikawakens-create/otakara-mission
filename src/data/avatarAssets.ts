@@ -40,18 +40,18 @@ function a(
 }
 
 export const AVATAR_ASSETS: AvatarAsset[] = [
-  // ---- 妹（younger）----
-  a("out_younger_pinkfrill", "outfit", "younger", "ピンクフリル", { rarity: "normal", starter: true }),
-  a("out_younger_parka", "outfit", "younger", "きいろパーカー", { rarity: "rare" }),
-  a("hair_younger_bob", "hair", "younger", "ぱっつんボブ", { rarity: "normal", starter: true }),
-  // ---- 姉（sister）----
-  a("out_sister_sailor", "outfit", "sister", "セーラーふく", { rarity: "normal", starter: true }),
-  a("out_sister_lavender", "outfit", "sister", "ラベンダー", { rarity: "rare" }),
-  a("hair_sister_midi", "hair", "sister", "ミディアム", { rarity: "normal", starter: true }),
+  // ---- 服（both・顔なし）----
+  a("out_younger_pinkfrill", "outfit", "both", "ピンクフリル", { rarity: "normal" }),
+  a("out_younger_parka", "outfit", "both", "きいろパーカー", { rarity: "rare" }),
+  a("out_sister_sailor", "outfit", "both", "セーラーふく", { rarity: "normal" }),
+  a("out_sister_lavender", "outfit", "both", "ラベンダー", { rarity: "rare" }),
+  // ---- 髪（both）----
+  a("hair_younger_bob", "hair", "both", "ぱっつんボブ", { rarity: "normal" }),
+  a("hair_sister_midi", "hair", "both", "ミディアム", { rarity: "normal" }),
+  // ---- 顔（both）----
+  a("face_genki", "face", "both", "げんき", { rarity: "normal" }),
+  a("face_gentle", "face", "both", "おっとり", { rarity: "normal" }),
   // ---- 姉（sister）追加分 ----
-  a("out_sister_hoodie", "outfit", "sister", "グレーパーカー", { rarity: "normal" }),
-  a("out_sister_princess", "outfit", "sister", "おひめさまドレス", { rarity: "ultra_rare" }),
-  a("out_sister_cat", "outfit", "sister", "ねこパーカー", { rarity: "rare", hooded: true }),
   a("hair_sister_twin", "hair", "sister", "ツインテール", { rarity: "rare" }),
   a("hair_sister_blackbob", "hair", "sister", "くろボブ", { rarity: "normal" }),
   a("hair_sister_braid", "hair", "sister", "みずいろみつあみ", { rarity: "rare" }),
@@ -76,26 +76,28 @@ export function avatarAsset(id: string | undefined): AvatarAsset | undefined {
   return id ? BY_ID[id] : undefined;
 }
 
-export function assetsForOwner(profileId: string, category: AvatarCategory): AvatarAsset[] {
-  return AVATAR_ASSETS.filter(
-    (x) => x.category === category && (x.owner === profileId || x.owner === "both")
-  );
+export function assetsInCategory(category: AvatarCategory): AvatarAsset[] {
+  return AVATAR_ASSETS.filter((x) => x.category === category);
 }
 
+const STARTERS: Record<string, { outfit: string; hair: string; face: string }> = {
+  younger: { outfit: "out_younger_pinkfrill", hair: "hair_younger_bob", face: "face_genki" },
+  sister: { outfit: "out_sister_sailor", hair: "hair_sister_midi", face: "face_gentle" },
+};
+
 export function starterOutfitId(profileId: string): string | undefined {
-  return AVATAR_ASSETS.find(
-    (x) => x.category === "outfit" && x.starter && (x.owner === profileId || x.owner === "both")
-  )?.id;
+  return STARTERS[profileId]?.outfit;
 }
 
 export function starterHairId(profileId: string): string | undefined {
-  return AVATAR_ASSETS.find(
-    (x) => x.category === "hair" && x.starter && (x.owner === profileId || x.owner === "both")
-  )?.id;
+  return STARTERS[profileId]?.hair;
+}
+
+export function starterFaceId(profileId: string): string | undefined {
+  return STARTERS[profileId]?.face;
 }
 
 export function starterAssetIds(profileId: string): string[] {
-  return AVATAR_ASSETS.filter(
-    (x) => x.starter && (x.owner === profileId || x.owner === "both")
-  ).map((x) => x.id);
+  const s = STARTERS[profileId];
+  return s ? [s.outfit, s.hair, s.face] : [];
 }
