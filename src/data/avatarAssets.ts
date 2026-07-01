@@ -52,9 +52,6 @@ export const AVATAR_ASSETS: AvatarAsset[] = [
   a("face_genki", "face", "both", "げんき", { rarity: "normal" }),
   a("face_gentle", "face", "both", "おっとり", { rarity: "normal" }),
   // ---- 姉（sister）追加分 ----
-  a("out_sister_hoodie", "outfit", "sister", "グレーパーカー", { rarity: "normal" }),
-  a("out_sister_princess", "outfit", "sister", "おひめさまドレス", { rarity: "ultra_rare" }),
-  a("out_sister_cat", "outfit", "sister", "ねこパーカー", { rarity: "rare", hooded: true }),
   a("hair_sister_twin", "hair", "sister", "ツインテール", { rarity: "rare" }),
   a("hair_sister_blackbob", "hair", "sister", "くろボブ", { rarity: "normal" }),
   a("hair_sister_braid", "hair", "sister", "みずいろみつあみ", { rarity: "rare" }),
