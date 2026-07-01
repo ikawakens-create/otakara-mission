@@ -197,3 +197,17 @@ export function importData(json: string): SaveData | null {
     return null;
   }
 }
+
+export function isValidSaveShape(obj: unknown): obj is SaveData {
+  if (typeof obj !== "object" || obj === null) return false;
+  const o = obj as Record<string, unknown>;
+  if (typeof o.schemaVersion !== "number") return false;
+  if (typeof o.activeProfileId !== "string") return false;
+  if (typeof o.settings !== "object" || o.settings === null) return false;
+  if (!Array.isArray(o.profiles) || o.profiles.length === 0) return false;
+  return o.profiles.every((p) => {
+    if (typeof p !== "object" || p === null) return false;
+    const pr = p as Record<string, unknown>;
+    return typeof pr.id === "string" && typeof pr.name === "string";
+  });
+}

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import type { SaveData, RecoveryMissionDef } from "../types";
 import PinPad from "../components/PinPad";
 import styles from "./ParentSettings.module.css";
+import { exportData, importData, isValidSaveShape } from "../lib/storage";
+import { getTodayKey } from "../lib/date";
 
 interface Props {
   saveData: SaveData;
@@ -16,6 +18,11 @@ export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestG
   const [addEmoji, setAddEmoji] = useState("📝");
   const [addLabel, setAddLabel] = useState("");
   const [changingPin, setChangingPin] = useState(false);
+  const [pendingRestore, setPendingRestore] = useState<SaveData | null>(null); // プレビュー中の復元候補
+  const [confirmRestore, setConfirmRestore] = useState(false);                 // 二段目の確認
+  const [importError, setImportError] = useState(false);                       // 読み込み失敗表示
+  const [toast, setToast] = useState<string | null>(null);                     // 軽い通知
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function updateSettings(patch: Partial<typeof settings>) {
     onUpdate({ ...saveData, settings: { ...settings, ...patch } });
@@ -43,6 +50,62 @@ export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestG
   function handlePinSet(pin: string) {
     updateSettings({ pinHash: `plain:${pin}` });
     setChangingPin(false);
+  }
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 1500);
+  }
+
+  function handleExport() {
+    const json = exportData(saveData);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `otakara-backup-${getTodayKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("ほぞんしました");
+  }
+
+  function handleImportClick() {
+    setImportError(false);
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChosen(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // 同じファイルを続けて選べるようにリセット
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === "string" ? reader.result : "";
+      const restored = importData(text);
+      if (!restored || !isValidSaveShape(restored)) {
+        setImportError(true);
+        return;
+      }
+      setImportError(false);
+      setPendingRestore(restored); // プレビューへ
+    };
+    reader.onerror = () => setImportError(true);
+    reader.readAsText(file);
+  }
+
+  function confirmRestoreNow() {
+    if (!pendingRestore) return;
+    onUpdate(pendingRestore); // state更新＋App側のuseEffectでlocalStorageに保存される
+    setPendingRestore(null);
+    setConfirmRestore(false);
+    showToast("もどしました");
+  }
+
+  function cancelRestore() {
+    setPendingRestore(null);
+    setConfirmRestore(false);
   }
 
   return (
@@ -137,6 +200,34 @@ export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestG
           </div>
         </div>
 
+        {/* データのバックアップ */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>データのバックアップ</div>
+          <div className={styles.backupHint}>
+            まんがいちに そなえて、データをファイルに ほぞんできます。
+          </div>
+          <div className={styles.backupButtons}>
+            <button className={styles.backupBtn} onClick={handleExport}>
+              📤 バックアップをつくる
+            </button>
+            <button className={styles.backupBtn} onClick={handleImportClick}>
+              📥 バックアップからもどす
+            </button>
+          </div>
+          {importError && (
+            <div className={styles.backupError}>
+              このファイルは よみこめませんでした。
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            style={{ display: "none" }}
+            onChange={handleFileChosen}
+          />
+        </div>
+
         {/* 演出テスト */}
         <div className={styles.section}>
           <div className={styles.sectionTitle}>開発ツール</div>
@@ -208,6 +299,46 @@ export default function ParentSettings({ saveData, onUpdate, onBack, onOpenTestG
           onCancel={() => setChangingPin(false)}
         />
       )}
+
+      {pendingRestore && !confirmRestore && (
+        <div className={styles.overlay}>
+          <div className={styles.dialog}>
+            <div className={styles.dialogTitle}>このバックアップを もどしますか？</div>
+            <div className={styles.previewList}>
+              {pendingRestore.profiles.map((p) => (
+                <div key={p.id} className={styles.previewRow}>
+                  <span className={styles.previewName}>{p.name}</span>
+                  <span className={styles.previewStat}>ポイント {p.points.total}</span>
+                  <span className={styles.previewStat}>かけら {p.kakera}</span>
+                  <span className={styles.previewStat}>アイテム {p.ownedItemIds.length}こ</span>
+                </div>
+              ))}
+            </div>
+            <div className={styles.warnText}>
+              ⚠ いまのデータは すべて うわがきされます。もとには もどせません。
+            </div>
+            <div className={styles.dialogButtons}>
+              <button className={styles.cancelBtn} onClick={cancelRestore}>やめる</button>
+              <button className={styles.dangerBtn} onClick={() => setConfirmRestore(true)}>もどす</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingRestore && confirmRestore && (
+        <div className={styles.overlay}>
+          <div className={styles.dialog}>
+            <div className={styles.dialogTitle}>ほんとうに うわがきしますか？</div>
+            <div className={styles.warnText}>この そうさは とりけせません。</div>
+            <div className={styles.dialogButtons}>
+              <button className={styles.cancelBtn} onClick={cancelRestore}>やめる</button>
+              <button className={styles.dangerBtn} onClick={confirmRestoreNow}>うわがきする</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   );
 }
