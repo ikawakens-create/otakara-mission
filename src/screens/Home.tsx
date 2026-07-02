@@ -24,9 +24,10 @@ interface Props {
   onSwitchProfile: () => void;
   onOpenParentSettings: () => void;
   onOpenAvatar: () => void;
+  onOpenZukan: () => void;
 }
 
-export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParentSettings, onOpenAvatar }: Props) {
+export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParentSettings, onOpenAvatar, onOpenZukan }: Props) {
   const [paletteForMissionId, setPaletteForMissionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<HomeTab>("today");
   const [gachaState, setGachaState] = useState<{
@@ -186,9 +187,14 @@ export default function Home({ saveData, onUpdate, onSwitchProfile, onOpenParent
             <div className={styles.profileName}>{currentProfile.name}</div>
             <div className={styles.dateText}>{formatDateJa(today)}</div>
           </div>
-          <button className={styles.dressupBtn} onClick={onOpenAvatar} type="button">
-            👗 きせかえ
-          </button>
+          <div className={styles.actionBtns}>
+            <button className={styles.dressupBtn} onClick={onOpenAvatar} type="button">
+              👗 きせかえ
+            </button>
+            <button className={styles.dressupBtn} onClick={onOpenZukan} type="button">
+              📖 ずかん
+            </button>
+          </div>
         </div>
 
         <div className={styles.statsRow}>

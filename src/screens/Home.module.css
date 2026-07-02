@@ -227,3 +227,9 @@
   background: linear-gradient(135deg, #a0c0ff, #c080ff);
   box-shadow: 0 4px 20px rgba(160, 80, 255, 0.5);
 }
+
+.actionBtns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

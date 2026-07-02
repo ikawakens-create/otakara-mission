@@ -7,10 +7,11 @@ import ParentSettings from "./screens/ParentSettings";
 import TestGacha from "./screens/TestGacha";
 import Dressup from "./screens/Dressup";
 import AvatarAdjust from "./screens/AvatarAdjust";
+import Zukan from "./screens/Zukan";
 import PinPad from "./components/PinPad";
 import "./styles/global.css";
 
-type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha" | "avatar" | "avatarAdjust";
+type Screen = "profileSelect" | "home" | "pinGate" | "parentSettings" | "testGacha" | "avatar" | "avatarAdjust" | "zukan";
 
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
@@ -52,6 +53,10 @@ export default function App() {
 
   const handleOpenAvatar = useCallback(() => {
     setScreen("avatar");
+  }, []);
+
+  const handleOpenZukan = useCallback(() => {
+    setScreen("zukan");
   }, []);
 
   const handleOpenAvatarAdjust = useCallback(() => {
@@ -113,6 +118,17 @@ export default function App() {
     );
   }
 
+  if (screen === "zukan") {
+    const zp = saveData.profiles.find((p) => p.id === saveData.activeProfileId) ?? saveData.profiles[0];
+    return (
+      <Zukan
+        profile={zp}
+        onBack={() => setScreen("home")}
+        onOpenDressup={() => setScreen("avatar")}
+      />
+    );
+  }
+
   return (
     <>
       <Home
@@ -121,6 +137,7 @@ export default function App() {
         onSwitchProfile={() => setScreen("profileSelect")}
         onOpenParentSettings={handleOpenParentSettings}
         onOpenAvatar={handleOpenAvatar}
+        onOpenZukan={handleOpenZukan}
       />
       {screen === "pinGate" && (
         <PinPad
